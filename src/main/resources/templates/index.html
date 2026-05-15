@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Minidooray Dashboard</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .navbar { background-color: #343a40; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .navbar h1 { margin: 0; font-size: 1.5rem; }
+        .logout-btn { background-color: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .container { padding: 2rem; max-width: 1000px; margin: 0 auto; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .create-btn { background-color: #28a745; color: white; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: bold; }
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+        .project-card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e1e4e8; transition: transform 0.2s; }
+        .project-card:hover { transform: translateY(-5px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .project-card h3 { margin-top: 0; color: #0366d6; }
+        .status-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+        .status-active { background-color: #d4edda; color: #155724; }
+        .status-closed { background-color: #f8d7da; color: #721c24; }
+        .view-link { display: block; margin-top: 1rem; color: #0366d6; text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Minidooray</h1>
+        <form th:action="@{/accounts/logout}" method="post">
+            <button type="submit" class="logout-btn">로그아웃</button>
+        </form>
+    </nav>
+
+    <div class="container">
+        <div class="header-actions">
+            <h2>내 프로젝트</h2>
+            <a th:href="@{/projects/new}" class="create-btn">+ 새 프로젝트</a>
+        </div>
+
+        <div th:if="${projects.empty}" style="text-align: center; color: #6a737d; margin-top: 3rem;">
+            참여 중인 프로젝트가 없습니다. 새로운 프로젝트를 생성해 보세요!
+        </div>
+
+        <div class="project-grid">
+            <div th:each="project : ${projects}" class="project-card">
+                <h3 th:text="${project.name}">프로젝트 명</h3>
+                <div>
+                    상태: 
+                    <span th:class="|status-badge ${project.status == 'ACTIVE' ? 'status-active' : 'status-closed'}|"
+                          th:text="${project.status}">ACTIVE</span>
+                </div>
+                <a th:href="@{/projects/{id}(id=${project.projectId})}" class="view-link">자세히 보기 →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

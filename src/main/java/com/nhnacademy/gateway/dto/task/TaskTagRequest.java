@@ -1,0 +1,7 @@
+package com.nhnacademy.gateway.dto.task;
+
+import java.util.List;
+
+public record TaskTagRequest(
+        List<Long> tagIds
+) {}
