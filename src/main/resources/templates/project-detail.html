@@ -136,6 +136,9 @@
         <!-- Tag Section in Sidebar -->
         <div class="sidebar-section">
             <div class="section-title">태그 정보</div>
+            <a th:href="@{/projects/{id}(id=${project.projectId})}" class="list-item" style="text-decoration: none; font-weight: bold; color: var(--primary-color); cursor: pointer;">
+                🚩 마일스톤별 보기 (기본)
+            </a>
             <div class="list-item tag-filter-item" data-tag-id="all" onclick="filterByTag(null)" style="cursor: pointer; font-weight: bold; color: var(--primary-color);">
                 모든 태그 보기
             </div>
@@ -158,7 +161,7 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="content-header">
-            <h3>할 일 목록 (마일스톤별)</h3>
+            <h3>할 일 목록</h3>
             <div>
                 <button onclick="openTaskModal()" class="btn btn-primary">+ 새 할 일 추가</button>
             </div>
