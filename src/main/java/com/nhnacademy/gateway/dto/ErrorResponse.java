@@ -1,7 +1,10 @@
 package com.nhnacademy.gateway.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public record ErrorResponse (
-        int status,
-        String message,
-        String path
+        @NotNull int status,
+        @NotBlank String message,
+        @NotBlank String path
 ){}
