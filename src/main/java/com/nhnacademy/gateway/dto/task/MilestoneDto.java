@@ -1,10 +1,12 @@
 package com.nhnacademy.gateway.dto.task;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public record MilestoneDto(
-        Long milestoneId,
-        String name,
-        LocalDate startDate,
-        LocalDate endDate
+        @NotNull Long milestoneId,
+        @NotBlank String name,
+        @NotNull LocalDate startDate,
+        @NotNull LocalDate endDate
 ) {}

@@ -1,8 +1,11 @@
 package com.nhnacademy.gateway.dto.account;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public record UserDto(
-        String userId,
-        String email,
-        String password,
-        String status
+        @NotBlank String userId,
+        @NotBlank @Email String email,
+        @NotBlank String password,
+        @NotBlank String status
 ) {}

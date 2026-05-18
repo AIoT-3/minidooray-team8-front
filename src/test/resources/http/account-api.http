@@ -1,0 +1,21 @@
+### 로그인 페이지 조회
+GET http://localhost:8080/login
+
+### 회원가입 페이지 조회
+GET http://localhost:8081/accounts/signup
+
+### 회원가입 요청
+POST http://localhost:8000/accounts/signup
+Content-Type: application/x-www-form-urlencoded
+
+id=testtestuser&email=test@test.com&password=password123
+
+### 로그인 요청 (Spring Security Form Login)
+# WebSecurityConfig의 loginProcessingUrl("/login") 및 usernameParameter("userId")에 맞춰 동작합니다.
+POST http://localhost:8080/login
+Content-Type: application/x-www-form-urlencoded
+
+userId=testuser&password=password123
+
+### 로그아웃
+POST http://localhost:8080/logout

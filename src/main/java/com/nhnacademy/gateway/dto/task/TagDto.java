@@ -1,6 +1,9 @@
 package com.nhnacademy.gateway.dto.task;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public record TagDto(
-        Long tagId,
-        String name
+        @NotNull Long tagId,
+        @NotBlank String name
 ) {}

@@ -6,6 +6,7 @@ import com.nhnacademy.gateway.dto.task.ProjectMemberRequest;
 import com.nhnacademy.gateway.service.AccountApiService;
 import com.nhnacademy.gateway.service.ProjectApiService;
 import com.nhnacademy.gateway.service.TagApiService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,13 +38,13 @@ public class ProjectController {
     }
 
     @PostMapping
-    public String createProject(@ModelAttribute ProjectCreateRequest request) {
+    public String createProject(@Valid @ModelAttribute ProjectCreateRequest request) {
         projectApiService.createProject(request);
-        return "redirect:/"; 
+        return "redirect:/my-projects"; 
     }
 
     @PostMapping("/{projectId}/edit")
-    public String updateProject(@PathVariable Long projectId, @ModelAttribute ProjectUpdateRequest request) {
+    public String updateProject(@PathVariable Long projectId, @Valid @ModelAttribute ProjectUpdateRequest request) {
         projectApiService.updateProject(projectId, request);
         return "redirect:/projects/" + projectId; 
     }
@@ -52,11 +53,11 @@ public class ProjectController {
     public String closeProject(@PathVariable Long projectId) {
         ProjectUpdateRequest closeRequest = new ProjectUpdateRequest(null, "CLOSED");
         projectApiService.updateProject(projectId, closeRequest);
-        return "redirect:/";
+        return "redirect:/my-projects";
     }
 
     @PostMapping("/{projectId}/members")
-    public String addProjectMember(@PathVariable Long projectId, @ModelAttribute ProjectMemberRequest request) {
+    public String addProjectMember(@PathVariable Long projectId, @Valid @ModelAttribute ProjectMemberRequest request) {
         // 1. 유저 존재 여부 확인 (Account API 호출)
         accountApiService.getUser(request.userId());
         

@@ -1,7 +1,8 @@
 package com.nhnacademy.gateway.dto.task;
 
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record TaskTagRequest(
-        List<Long> tagIds
+        @NotEmpty List<Long> tagIds
 ) {}

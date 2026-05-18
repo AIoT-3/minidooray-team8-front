@@ -14,6 +14,7 @@ import com.nhnacademy.gateway.service.MilestoneApiService;
 import com.nhnacademy.gateway.service.ProjectApiService;
 import com.nhnacademy.gateway.service.TagApiService;
 import com.nhnacademy.gateway.service.TaskApiService;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ public class TaskController {
 
     @PostMapping
     public String createTask(@PathVariable("projectId") Long projectId, 
-                             @ModelAttribute TaskCreateRequest request,
+                             @Valid @ModelAttribute TaskCreateRequest request,
                              @RequestParam(required = false) Long milestoneId,
                              @RequestParam(required = false) String newMilestoneName,
                              @RequestParam(required = false) LocalDate newMilestoneStartDate,
@@ -91,7 +92,7 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/edit")
-    public String updateTask(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId, @ModelAttribute TaskUpdateRequest request) {
+    public String updateTask(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId, @Valid @ModelAttribute TaskUpdateRequest request) {
         taskApiService.updateTask(projectId, taskId, request);
         return "redirect:/projects/" + projectId + "/tasks/" + taskId;
     }

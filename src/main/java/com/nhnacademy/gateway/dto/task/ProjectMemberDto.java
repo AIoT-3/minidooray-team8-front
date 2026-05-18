@@ -1,5 +1,7 @@
 package com.nhnacademy.gateway.dto.task;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record ProjectMemberDto(
-        String userId
+        @NotBlank String userId
 ) {}

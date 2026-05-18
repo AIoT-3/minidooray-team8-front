@@ -4,6 +4,7 @@ import com.nhnacademy.gateway.dto.account.LoginRequest;
 import com.nhnacademy.gateway.dto.account.SignupRequest;
 import com.nhnacademy.gateway.dto.account.UserStatusUpdateRequest;
 import com.nhnacademy.gateway.service.AccountApiService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +26,7 @@ public class AccountController {
     }
 
     @PostMapping("/signup")
-    public String signupUser(@ModelAttribute SignupRequest request) {
+    public String signupUser(@Valid @ModelAttribute SignupRequest request) {
         accountApiService.signup(request);
         return "redirect:/login";
     }
@@ -36,16 +37,10 @@ public class AccountController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String loginUser(@ModelAttribute LoginRequest request) {
-        accountApiService.login(request);
-        return "redirect:/";
-    }
-
     @PostMapping("/users/{userId}/status")
-    public String updateUserStatus(@PathVariable String userId, @ModelAttribute UserStatusUpdateRequest request) {
+    public String updateUserStatus(@PathVariable String userId, @Valid @ModelAttribute UserStatusUpdateRequest request) {
         accountApiService.updateUserStatus(userId, request);
-        return "redirect:/";
+        return "redirect:/my-projects";
     }
 }
 

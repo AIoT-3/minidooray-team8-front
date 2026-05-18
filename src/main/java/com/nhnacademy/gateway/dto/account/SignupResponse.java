@@ -1,7 +1,9 @@
 package com.nhnacademy.gateway.dto.account;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record SignupResponse(
-        String id,
-        String status
+        @NotBlank String id,
+        @NotBlank String status
 ) {
 }

@@ -2,6 +2,7 @@ package com.nhnacademy.gateway.controller;
 
 import com.nhnacademy.gateway.dto.task.CommentCreateRequest;
 import com.nhnacademy.gateway.service.CommentApiService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,7 +20,7 @@ public class CommentController {
     @PostMapping
     public String createComment(@PathVariable Long projectId,
                                 @PathVariable Long taskId,
-                                @ModelAttribute CommentCreateRequest request) {
+                                @Valid @ModelAttribute CommentCreateRequest request) {
         commentApiService.createComment(projectId, taskId, request);
         return "redirect:/projects/" + projectId + "/tasks/" + taskId;
     }
@@ -28,7 +29,7 @@ public class CommentController {
     public String updateComment(@PathVariable Long projectId,
                                 @PathVariable Long taskId,
                                 @PathVariable Long commentId,
-                                @ModelAttribute CommentCreateRequest request) {
+                                @Valid @ModelAttribute CommentCreateRequest request) {
         commentApiService.updateComment(projectId, taskId, commentId, request);
         return "redirect:/projects/" + projectId + "/tasks/" + taskId;
     }

@@ -42,8 +42,7 @@ public class WebSecurityConfig {
                         .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                         .deleteCookies("SESSION")
-                )
-                .csrf(csrf -> csrf.disable()); // 개발 단계에서는 CSRF 비활성화 (필요 시 나중에 설정)
+                );
 
         return http.build();
     }

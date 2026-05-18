@@ -26,7 +26,7 @@ public class WebConfig {
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setInterceptors(Collections.singletonList(new UserHeaderInterceptor()));
-        return restTemplate;
+return restTemplate;
     }
 
     private static class UserHeaderInterceptor implements ClientHttpRequestInterceptor {

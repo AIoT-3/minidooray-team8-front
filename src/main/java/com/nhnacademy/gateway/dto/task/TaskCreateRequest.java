@@ -1,12 +1,14 @@
 package com.nhnacademy.gateway.dto.task;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public record TaskCreateRequest(
         Long taskId,
         Long projectId,
-        String title,
-        String content,
+        @NotBlank @Size(max = 100) String title,
+        @NotBlank String content,
         String writerId,
         LocalDateTime createdAt
 ) {}
