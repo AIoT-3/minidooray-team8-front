@@ -7,7 +7,7 @@
 ## 1. Account API (계정 관리)
 
 ### 1.1 회원가입
-- **Endpoint**: `POST /accounts/signup`
+- **Endpoint**: `POST /signup`
 - **Request (SignupRequest)**:
   ```json
   {
@@ -25,7 +25,7 @@
   ```
 
 ### 1.2 로그인
-- **Endpoint**: `POST /accounts/login`
+- **Endpoint**: `POST /login`
 - **Request (LoginRequest)**:
   ```json
   {
@@ -42,11 +42,11 @@
   *(성공 시 Redis 세션에 `USER_ID`가 저장됩니다.)*
 
 ### 1.3 로그아웃
-- **Endpoint**: `POST /accounts/logout`
+- **Endpoint**: `POST /logout`
 - **Description**: 현재 세션을 무효화(invalidate)합니다.
 
 ### 1.4 사용자 상태 변경
-- **Endpoint**: `POST /accounts/users/{userId}/status`
+- **Endpoint**: `POST /users/{userId}/status`
 - **Request (UserStatusUpdateRequest)**:
   ```json
   {
@@ -55,7 +55,7 @@
   ```
 
 ### 1.5 사용자 정보 조회
-- **Endpoint**: `GET /accounts/users/{userId}`
+- **Endpoint**: `GET /users/{userId}`
 - **Response (UserDto)**:
   ```json
   {
@@ -230,6 +230,32 @@
 - **Optional Request Parameters**:
   - `tagIds` (List<Long>): 기존 태그 ID 목록
   - `newTagName` (String): 새 태그 이름 (입력 시 신규 생성 및 추가 할당)
+
+### 3.7 업무 목록 조회 및 필터링 (AJAX)
+- **Endpoint**: `GET /projects/{projectId}/tasks`
+- **Request Parameters**:
+  - `projectId` (Path Variable, Long): 프로젝트 식별자 (필수)
+  - `tagId` (Query Parameter, Long): 필터링할 태그 식별자 (선택)
+- **Response (List<TaskDto>)**:
+  ```json
+  [
+    {
+      "taskId": 1,
+      "milestoneId": 10,
+      "title": "업무 제목",
+      "content": "업무 상세 내용",
+      "writerId": "user123",
+      "createdAt": "2023-10-27T10:00:00",
+      "tags": [
+        {
+          "tagId": 5,
+          "name": "Backend"
+        }
+      ]
+    }
+  ]
+  ```
+- **Description**: 프로젝트에 속한 업무 목록을 JSON으로 반환합니다. `tagId`가 제공되면 해당 태그가 포함된 업무만 필터링하여 반환하고, 파라미터가 없으면 프로젝트의 전체 업무 목록을 반환합니다.
 
 ---
 

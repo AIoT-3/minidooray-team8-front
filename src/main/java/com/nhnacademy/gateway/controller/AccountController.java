@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/accounts")
 public class AccountController {
 
     private final AccountApiService accountApiService;
@@ -29,7 +27,7 @@ public class AccountController {
     @PostMapping("/signup")
     public String signupUser(@ModelAttribute SignupRequest request) {
         accountApiService.signup(request);
-        return "redirect:/accounts/login";
+        return "redirect:/login";
     }
 
     @GetMapping("/login")

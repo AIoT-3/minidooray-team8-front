@@ -30,7 +30,7 @@ public class CommentApiService {
     }
 
     public CommentDto updateComment(Long projectId, Long taskId, Long commentId, CommentCreateRequest request) {
-        String url = taskApiUrl + "/projects/" + projectId + "/tasks/" + taskId + "/comments/" + commentId;
+        String url = taskApiUrl + "/projects/" + projectId + "/tasks/" + taskId + "/comments/" + commentId + "/edit";
         HttpEntity<CommentCreateRequest> entity = new HttpEntity<>(request);
         ResponseEntity<CommentDto> response = restTemplate.exchange(url, HttpMethod.PUT, entity, CommentDto.class);
         return response.getBody();

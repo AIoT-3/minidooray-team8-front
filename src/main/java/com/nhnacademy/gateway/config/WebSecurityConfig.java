@@ -11,10 +11,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableRedisHttpSession
 public class WebSecurityConfig {
 
     private final CustomAuthenticationProvider customAuthenticationProvider;
@@ -23,21 +25,21 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                 // 로그인, 회원가입 관련 정적 리소스 및 API는 인증 없이 허용
-                .requestMatchers("/accounts/login", "/accounts/signup", "/static/**").permitAll()
+                .requestMatchers("/login", "/signup", "/static/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
         )
                 .formLogin(form -> form
-                        .loginPage("/accounts/login") // 커스텀 로그인 페이지 경로
-                        .loginProcessingUrl("/accounts/login") // Spring Security가 POST 로그인을 처리할 URL
+                        .loginPage("/login") // 커스텀 로그인 페이지 경로
+                        .loginProcessingUrl("/login") // Spring Security가 POST 로그인을 처리할 URL
                         .usernameParameter("userId") // 폼 데이터의 ID 필드명
                         .passwordParameter("password") // 폼 데이터의 PW 필드명
-                        .defaultSuccessUrl("/") // 성공 시 이동할 페이지
+                        .defaultSuccessUrl("/my-projects") // 성공 시 이동할 페이지
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/accounts/logout")
-                        .logoutSuccessUrl("/accounts/login")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                         .deleteCookies("SESSION")
                 )

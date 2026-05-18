@@ -29,12 +29,6 @@ public class ProjectController {
         this.tagApiService = tagApiService;
     }
 
-    @GetMapping
-    public String getProjects(Model model) {
-        model.addAttribute("projects", projectApiService.getProjects());
-        return "projects";
-    }
-
     @GetMapping("/{projectId}")
     public String getProject(@PathVariable Long projectId, Model model) {
         model.addAttribute("project", projectApiService.getProjectDetail(projectId));
@@ -42,24 +36,10 @@ public class ProjectController {
         return "project-detail";
     }
 
-    @GetMapping("/new")
-    public String projectCreateForm(Model model) {
-        model.addAttribute("request", new ProjectCreateRequest(null));
-        return "project-form";
-    }
-
     @PostMapping
     public String createProject(@ModelAttribute ProjectCreateRequest request) {
         projectApiService.createProject(request);
-        return "redirect:/projects"; 
-    }
-
-    @GetMapping("/{projectId}/edit")
-    public String projectUpdateForm(@PathVariable Long projectId, Model model) {
-        ProjectDto project = projectApiService.getProject(projectId);
-        model.addAttribute("projectId", projectId);
-        model.addAttribute("request", new ProjectUpdateRequest(project.name(), project.status()));
-        return "project-edit-form";
+        return "redirect:/"; 
     }
 
     @PostMapping("/{projectId}/edit")
@@ -72,7 +52,7 @@ public class ProjectController {
     public String closeProject(@PathVariable Long projectId) {
         ProjectUpdateRequest closeRequest = new ProjectUpdateRequest(null, "CLOSED");
         projectApiService.updateProject(projectId, closeRequest);
-        return "redirect:/projects";
+        return "redirect:/";
     }
 
     @PostMapping("/{projectId}/members")

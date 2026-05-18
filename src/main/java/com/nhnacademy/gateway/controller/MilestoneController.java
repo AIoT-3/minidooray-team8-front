@@ -5,7 +5,6 @@ import com.nhnacademy.gateway.dto.task.MilestoneDetailDto;
 import com.nhnacademy.gateway.service.MilestoneApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -14,13 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class MilestoneController {
 
     private final MilestoneApiService milestoneApiService;
-
-    @GetMapping("/new")
-    public String milestoneForm(@PathVariable Long projectId, Model model) {
-        model.addAttribute("projectId", projectId);
-        model.addAttribute("request", new MilestoneCreateRequest(null, null, null));
-        return "milestone-form";
-    }
 
     @PostMapping
     public String createMilestone(@PathVariable Long projectId, @ModelAttribute MilestoneCreateRequest request) {
@@ -32,13 +24,6 @@ public class MilestoneController {
     @ResponseBody
     public MilestoneDetailDto getMilestone(@PathVariable Long projectId, @PathVariable Long milestoneId) {
         return milestoneApiService.getMilestone(projectId, milestoneId);
-    }
-
-    @GetMapping("/{milestoneId}/edit")
-    public String milestoneUpdateForm(@PathVariable Long projectId, @PathVariable Long milestoneId, Model model) {
-        model.addAttribute("projectId", projectId);
-        model.addAttribute("milestoneId", milestoneId);
-        return "milestone-edit-form";
     }
 
     @PostMapping("/{milestoneId}/edit")

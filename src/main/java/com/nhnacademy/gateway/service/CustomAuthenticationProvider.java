@@ -31,24 +31,23 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = (String) authentication.getCredentials();
 
         try {
-            // 1. Account API를 호출하여 아이디와 비밀번호가 일치하는지 확인합니다.
+            // Account API를 호출하여 아이디와 비밀번호가 일치하는지 확인
             // 성공 시 userId가 담긴 LoginResponse가 반환됩니다.
             LoginResponse response = accountApiService.login(new LoginRequest(userId, password));
 
             if (response != null && response.userId() != null) {
-                // 2. 인증에 성공했다면 CustomUserDetails 객체를 생성합니다.
+                // 인증에 성공했다면 CustomUserDetails 객체 생성
                 CustomUserDetails userDetails = new CustomUserDetails(response.userId());
 
-                // 3. 인증된 토큰을 생성하여 반환합니다. 
+                // 인증된 토큰을 생성하여 반환
                 // 이때 권한(Authorities) 정보도 함께 넘겨주어 '인증됨' 상태로 만듭니다.
                 return new UsernamePasswordAuthenticationToken(
                         userDetails,
-                        null, // 보안상 비밀번호는 제거합니다.
+                        null,
                         userDetails.getAuthorities()
                 );
             }
         } catch (Exception e) {
-            // API 호출 실패 또는 401 Unauthorized 등이 발생한 경우
             throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 

@@ -24,7 +24,7 @@ public class AccountApiService {
     }
 
     public SignupResponse signup(SignupRequest request) {
-        String url = associationApiUrl + "accounts/signup";
+        String url = associationApiUrl + "/accounts/signup";
         ResponseEntity<SignupResponse> response = restTemplate.postForEntity(
                 url,
                 request,
@@ -34,7 +34,7 @@ public class AccountApiService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        String url = associationApiUrl + "accounts/login";
+        String url = associationApiUrl + "/accounts/login";
         ResponseEntity<LoginResponse> response = restTemplate.postForEntity(
                 url,
                 request,
@@ -44,7 +44,7 @@ public class AccountApiService {
     }
 
     public void updateUserStatus(String userId, UserStatusUpdateRequest request) {
-        String url = associationApiUrl + "accounts/users/" + userId + "/status";
+        String url = associationApiUrl + "/accounts/users/" + userId + "/status";
         restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
@@ -54,12 +54,11 @@ public class AccountApiService {
     }
 
     public UserDto getUser(String userId) {
-        String url = associationApiUrl + "accounts/users/" + userId;
+        String url = associationApiUrl + "/accounts/users/" + userId;
         ResponseEntity<UserDto> response = restTemplate.getForEntity(
                 url,
-                com.nhnacademy.gateway.dto.account.UserDto.class
+                UserDto.class
         );
         return response.getBody();
     }
 }
-

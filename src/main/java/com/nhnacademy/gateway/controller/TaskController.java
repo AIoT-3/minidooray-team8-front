@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,13 +38,13 @@ public class TaskController {
     private final TagApiService tagApiService;
     private final ProjectApiService projectApiService;
 
-    @GetMapping("/new")
-    public String taskCreateForm(@PathVariable("projectId") Long projectId, Model model) {
-        model.addAttribute("projectId", projectId);
-        model.addAttribute("milestones", milestoneApiService.getMilestones(projectId));
-        model.addAttribute("tags", tagApiService.getTags(projectId));
-        model.addAttribute("request", new TaskCreateRequest(null, projectId, null, null, null, null));
-        return "task-form";
+    @GetMapping
+    @ResponseBody
+    public List<TaskDto> getTasks(@PathVariable Long projectId, @RequestParam(required = false) Long tagId) {
+        if (tagId == null) {
+            return projectApiService.getProjectDetail(projectId).tasks();
+        }
+        return taskApiService.getTasksByTag(projectId, tagId);
     }
 
     @PostMapping
@@ -56,7 +57,7 @@ public class TaskController {
                              @RequestParam(required = false) List<Long> tagIds,
                              @RequestParam(required = false) String newTagName) {
         
-        TaskDto createdTask = taskApiService.createTask(request);
+        TaskDto createdTask = taskApiService.createTask(projectId, request);
 
         // Milestone handle
         if (newMilestoneName != null && !newMilestoneName.isBlank()) {
@@ -64,7 +65,7 @@ public class TaskController {
             milestoneId = newMilestone.milestoneId();
         }
         if (milestoneId != null) {
-            taskApiService.setMilestone(createdTask.taskId(), new TaskMilestoneRequest(milestoneId));
+            taskApiService.setMilestone(projectId, createdTask.taskId(), new TaskMilestoneRequest(milestoneId));
         }
 
         // Tags handle
@@ -74,7 +75,7 @@ public class TaskController {
             finalTagIds.add(newTag.tagId());
         }
         if (!finalTagIds.isEmpty()) {
-            taskApiService.addTags(createdTask.taskId(), new TaskTagRequest(finalTagIds));
+            taskApiService.addTags(projectId, createdTask.taskId(), new TaskTagRequest(finalTagIds));
         }
 
         return "redirect:/projects/" + projectId;
@@ -83,31 +84,21 @@ public class TaskController {
     @GetMapping("/{taskId}")
     public String getTask(Model model, @PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
         model.addAttribute("projectId", projectId);
-        model.addAttribute("task", taskApiService.getTask(taskId));
+        model.addAttribute("task", taskApiService.getTask(projectId, taskId));
         model.addAttribute("project", projectApiService.getProjectDetail(projectId));
         model.addAttribute("tags", tagApiService.getTags(projectId));
         return "task-detail";
     }
 
-    @GetMapping("/{taskId}/edit")
-    public String taskUpdateForm(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId, Model model) {
-        TaskDetailDto task = taskApiService.getTask(taskId);
-        model.addAttribute("projectId", projectId);
-        model.addAttribute("taskId", taskId);
-        model.addAttribute("milestones", milestoneApiService.getMilestones(projectId));
-        model.addAttribute("request", new TaskUpdateRequest(task.title(), task.content()));
-        return "task-edit-form";
-    }
-
     @PostMapping("/{taskId}/edit")
     public String updateTask(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId, @ModelAttribute TaskUpdateRequest request) {
-        taskApiService.updateTask(taskId, request);
+        taskApiService.updateTask(projectId, taskId, request);
         return "redirect:/projects/" + projectId + "/tasks/" + taskId;
     }
 
     @PostMapping("/{taskId}/delete")
     public String deleteTask(@PathVariable("projectId") Long projectId, @PathVariable("taskId") Long taskId) {
-        taskApiService.deleteTask(taskId);
+        taskApiService.deleteTask(projectId, taskId);
         return "redirect:/projects/" + projectId;
     }
 
@@ -124,7 +115,7 @@ public class TaskController {
             milestoneId = newMilestone.milestoneId();
         }
         
-        taskApiService.setMilestone(taskId, new TaskMilestoneRequest(milestoneId));
+        taskApiService.setMilestone(projectId, taskId, new TaskMilestoneRequest(milestoneId));
         return "redirect:/projects/" + projectId + "/tasks/" + taskId;
     }
 
@@ -140,7 +131,7 @@ public class TaskController {
             finalTagIds.add(newTag.tagId());
         }
         
-        taskApiService.addTags(taskId, new TaskTagRequest(finalTagIds));
+        taskApiService.addTags(projectId, taskId, new TaskTagRequest(finalTagIds));
         return "redirect:/projects/" + projectId + "/tasks/" + taskId;
     }
 }

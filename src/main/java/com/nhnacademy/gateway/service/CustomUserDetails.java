@@ -15,7 +15,7 @@ import java.util.Collections;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-    private final String userId; // 사용자의 식별 아이디 (DB의 id 필드와 매칭)
+    private final String userId;
 
     public CustomUserDetails(String userId) {
         this.userId = userId;
@@ -23,7 +23,6 @@ public class CustomUserDetails implements UserDetails {
 
     /**
      * 사용자가 가진 권한(Authority) 목록을 반환합니다.
-     * 현재는 별도의 권한 관리 로직이 없으므로 기본적으로 "ROLE_USER" 권한을 부여합니다.
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -32,8 +31,6 @@ public class CustomUserDetails implements UserDetails {
 
     /**
      * 사용자의 비밀번호를 반환합니다.
-     * 비밀번호 검증은 AuthenticationProvider에서 외부 API(Account API)를 호출하여 직접 수행하므로,
-     * 여기서는 null이나 빈 값을 반환해도 무방합니다.
      */
     @Override
     public String getPassword() {

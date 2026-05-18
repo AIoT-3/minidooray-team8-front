@@ -12,7 +12,7 @@ public class HomeController {
 
     private final ProjectApiService projectApiService;
 
-    @GetMapping("/")
+    @GetMapping("/my-projects")
     public String index(Model model) {
         model.addAttribute("projects", projectApiService.getProjects());
         return "index";

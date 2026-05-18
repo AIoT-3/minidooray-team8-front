@@ -4,7 +4,6 @@ import com.nhnacademy.gateway.dto.task.TagCreateRequest;
 import com.nhnacademy.gateway.service.TagApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -14,24 +13,10 @@ public class TagController {
 
     private final TagApiService tagApiService;
 
-    @GetMapping("/new")
-    public String tagForm(@PathVariable Long projectId, Model model) {
-        model.addAttribute("projectId", projectId);
-        model.addAttribute("request", new TagCreateRequest(null));
-        return "tag-form";
-    }
-
     @PostMapping
     public String createTag(@PathVariable Long projectId, @ModelAttribute TagCreateRequest request) {
         tagApiService.createTag(projectId, request);
         return "redirect:/projects/" + projectId;
-    }
-
-    @GetMapping("/{tagId}/edit")
-    public String tagUpdateForm(@PathVariable Long projectId, @PathVariable Long tagId, Model model) {
-        model.addAttribute("projectId", projectId);
-        model.addAttribute("tagId", tagId);
-        return "tag-edit-form";
     }
 
     @PostMapping("/{tagId}/edit")

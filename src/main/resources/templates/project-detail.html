@@ -99,7 +99,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <a href="/" class="nav-back">← 대시보드로 돌아가기</a>
+            <a href="/my-projects" class="nav-back">← 대시보드로 돌아가기</a>
             <h2 th:text="${project.name}">Project Name</h2>
             <span th:class="|status-badge status-${project.status}|" th:text="${project.status}">ACTIVE</span>
         </div>
@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <div class="task-list-container">
+        <div class="task-list-container" id="task-list-container">
             <!-- Group by Milestones -->
             <details th:each="milestone : ${project.milestones}" class="milestone-group" open>
                 <summary class="milestone-summary">
@@ -174,8 +174,7 @@
                     <a th:each="task : ${project.tasks}" 
                        th:if="${task.milestoneId == milestone.milestoneId}"
                        th:href="@{/projects/{pId}/tasks/{tId}(pId=${project.projectId}, tId=${task.taskId})}" 
-                       class="task-item"
-                       th:data-tags="${task.tags != null ? #strings.listJoin(task.tags.![tagId], ',') : ''}">
+                       class="task-item">
                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                             <span class="task-title" th:text="${task.title}">Task Title</span>
                             <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
@@ -201,8 +200,7 @@
                     <a th:each="task : ${project.tasks}" 
                        th:if="${task.milestoneId == null}"
                        th:href="@{/projects/{pId}/tasks/{tId}(pId=${project.projectId}, tId=${task.taskId})}" 
-                       class="task-item"
-                       th:data-tags="${task.tags != null ? #strings.listJoin(task.tags.![tagId], ',') : ''}">
+                       class="task-item">
                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                             <span class="task-title" th:text="${task.title}">Task Title</span>
                             <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
@@ -348,7 +346,9 @@
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        const projectId = [[${project.projectId}]];
+
         function openModal() {
             document.getElementById("addMemberModal").style.display = "block";
         }
@@ -386,45 +386,52 @@
                 }
             });
 
-            // Filter Tasks
-            document.querySelectorAll('.task-item').forEach(taskEl => {
-                if (tagId === null) {
-                    taskEl.style.display = 'grid';
-                } else {
-                    const taskTags = taskEl.dataset.tags ? taskEl.dataset.tags.split(',') : [];
-                    if (taskTags.includes(String(tagId))) {
-                        taskEl.style.display = 'grid';
-                    } else {
-                        taskEl.style.display = 'none';
-                    }
-                }
-            });
+            // Fetch filtered tasks from server
+            const url = `/projects/${projectId}/tasks` + (tagId ? `?tagId=${tagId}` : '');
             
-            // Handle Empty States
-            document.querySelectorAll('.milestone-group').forEach(group => {
-                const visibleTasks = Array.from(group.querySelectorAll('.task-item')).filter(el => el.style.display !== 'none');
-                let dynamicEmpty = group.querySelector('.dynamic-empty-state');
-                const originalEmpty = group.querySelector('.original-empty-state');
-                
-                if (visibleTasks.length === 0) {
-                    if (originalEmpty) originalEmpty.style.display = 'none';
-                    if (!dynamicEmpty) {
-                        const emptyDiv = document.createElement('div');
-                        emptyDiv.className = 'empty-state dynamic-empty-state';
-                        emptyDiv.textContent = '조건에 맞는 할 일이 없습니다.';
-                        emptyDiv.style.padding = '2rem';
-                        group.querySelector('.task-list').appendChild(emptyDiv);
+            fetch(url)
+                .then(response => response.json())
+                .then(tasks => {
+                    const container = document.getElementById('task-list-container');
+                    container.innerHTML = ''; // Clear current tasks
+
+                    if (tasks.length === 0) {
+                        container.innerHTML = '<div class="empty-state">조건에 맞는 할 일이 없습니다.</div>';
+                        return;
                     }
-                } else {
-                    if (dynamicEmpty) dynamicEmpty.remove();
-                    if (originalEmpty && Array.from(group.querySelectorAll('.task-item')).length > 0) {
-                        // Original empty state should only show if there are truly no tasks at all
-                        originalEmpty.style.display = 'none';
-                    } else if (originalEmpty) {
-                        originalEmpty.style.display = 'block';
-                    }
-                }
-            });
+
+                    // For AJAX results, we just list them in a simple task-list
+                    const taskListDiv = document.createElement('div');
+                    taskListDiv.className = 'task-list';
+                    taskListDiv.style.border = '1px solid var(--border-color)';
+                    taskListDiv.style.borderRadius = '6px';
+                    
+                    tasks.forEach(task => {
+                        const taskLink = document.createElement('a');
+                        taskLink.href = `/projects/${projectId}/tasks/${task.taskId}`;
+                        taskLink.className = 'task-item';
+                        
+                        const tagsHtml = (task.tags || []).map(t => `<span class="tag-badge">${t.name}</span>`).join('');
+                        const dateStr = task.createdAt ? new Date(task.createdAt).toLocaleString() : '';
+
+                        taskLink.innerHTML = `
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <span class="task-title">${task.title}</span>
+                                <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                                    ${tagsHtml}
+                                </div>
+                            </div>
+                            <span class="task-meta">작성자: ${task.writerId}</span>
+                            <span class="task-meta">${dateStr}</span>
+                        `;
+                        taskListDiv.appendChild(taskLink);
+                    });
+                    container.appendChild(taskListDiv);
+                })
+                .catch(error => {
+                    console.error('Error fetching filtered tasks:', error);
+                    alert('데이터를 가져오는 중 오류가 발생했습니다.');
+                });
         }
 
         window.onclick = function(event) {
