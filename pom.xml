@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.nhnacademy</groupId>
-    <artifactId>minidooray-team8-gateway</artifactId>
+    <artifactId>minidooray-team8-front</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>minidooray-team8-gateway</name>
     <description>minidooray-team8-gateway</description>
