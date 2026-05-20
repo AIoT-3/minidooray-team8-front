@@ -5,13 +5,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -21,6 +25,12 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private final ObjectMapper objectMapper;
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNoResourceFoundException(NoResourceFoundException ex) {
+        // favicon.ico 등 누락된 리소스 요청에 대해 로그를 남기지 않고 404 반환
+        return ResponseEntity.notFound().build();
+    }
 
     @ExceptionHandler(HttpStatusCodeException.class)
     public String handleHttpClientErrorException(HttpStatusCodeException ex, HttpServletRequest request, Model model) {

@@ -50,8 +50,7 @@ public class ProjectController {
 
     @PostMapping("/{project-id}/close")
     public String closeProject(@PathVariable("project-id") Long projectId) {
-        ProjectUpdateRequest closeRequest = new ProjectUpdateRequest(null, "CLOSED");
-        projectApiService.updateProject(projectId, closeRequest);
+        projectApiService.closeProject(projectId);
         return "redirect:/my-projects";
     }
 

@@ -33,13 +33,24 @@ public class ProjectApiService {
     }
 
     public ProjectDto updateProject(Long projectId, ProjectUpdateRequest requestDto) {
-        String url = "/projects/" + projectId;
-        
+        String url = "/projects/" + projectId + "/edit";
+
         HttpEntity<ProjectUpdateRequest> entity = new HttpEntity<>(requestDto);
         ResponseEntity<ProjectDto> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 entity,
+                ProjectDto.class
+        );
+        return response.getBody();
+    }
+
+    public ProjectDto closeProject(Long projectId) {
+        String url = "/projects/" + projectId + "/close";
+        ResponseEntity<ProjectDto> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                null,
                 ProjectDto.class
         );
         return response.getBody();

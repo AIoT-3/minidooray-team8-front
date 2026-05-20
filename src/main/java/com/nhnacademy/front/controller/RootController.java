@@ -17,6 +17,6 @@ public class RootController {
             return "redirect:/my-projects";
         }
 
-        return "login";
+        return "main";
     }
 }
