@@ -5,6 +5,7 @@ import com.nhnacademy.front.dto.task.*;
 import com.nhnacademy.front.service.AccountApiService;
 import com.nhnacademy.front.service.ProjectApiService;
 import com.nhnacademy.front.service.TagApiService;
+import com.nhnacademy.front.service.TaskApiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -34,6 +35,9 @@ class ProjectControllerTest {
     private TagApiService tagApiService;
 
     @MockitoBean
+    private TaskApiService taskApiService;
+
+    @MockitoBean
     private ObjectMapper objectMapper;
 
     @Test
@@ -56,7 +60,7 @@ class ProjectControllerTest {
                         .param("name", "New Project")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/my-projects"));
     }
 
     @Test
@@ -64,7 +68,7 @@ class ProjectControllerTest {
     void testUpdateProject() throws Exception {
         mockMvc.perform(post("/projects/1/edit")
                         .param("name", "Updated")
-                        .param("status", "CLOSED")
+                        .param("status", "TERMINATED")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/projects/1"));
@@ -76,7 +80,7 @@ class ProjectControllerTest {
         mockMvc.perform(post("/projects/1/close")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/my-projects"));
     }
 
     @Test

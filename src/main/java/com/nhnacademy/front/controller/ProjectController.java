@@ -86,4 +86,16 @@ public class ProjectController {
         projectApiService.addProjectMember(projectId, request);
         return "redirect:/projects/" + projectId;
     }
+
+    @PostMapping("/{project-id}/members/{user-id}/delete")
+    public String deleteProjectMember(@PathVariable("project-id") Long projectId, @PathVariable("user-id") String userId, java.security.Principal principal) {
+        projectApiService.deleteProjectMember(projectId, userId);
+        
+        // 만약 본인이 탈퇴한 경우 대시보드로 이동
+        if (principal != null && principal.getName().equals(userId)) {
+            return "redirect:/my-projects";
+        }
+        
+        return "redirect:/projects/" + projectId;
+    }
 }

@@ -35,6 +35,7 @@ class HomeControllerTest {
         mockMvc.perform(get("/my-projects"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"))
-                .andExpect(model().attributeExists("projects"));
+                .andExpect(model().attributeExists("projects"))
+                .andExpect(model().attributeExists("currentStatus"));
     }
 }

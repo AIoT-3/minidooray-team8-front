@@ -35,7 +35,7 @@ class ProjectApiServiceTest {
     @Test
     void testCreateProject() {
         ProjectCreateRequest request = new ProjectCreateRequest("P1");
-        ProjectDto response = new ProjectDto(1L, "P1", "ACTIVE");
+        ProjectDto response = new ProjectDto(1L, "P1", "ACTIVE", "admin");
         when(restTemplate.postForEntity(eq("/projects"), eq(request), eq(ProjectDto.class)))
                 .thenReturn(ResponseEntity.ok(response));
 
@@ -47,20 +47,32 @@ class ProjectApiServiceTest {
 
     @Test
     void testUpdateProject() {
-        ProjectUpdateRequest request = new ProjectUpdateRequest("P2", "CLOSED");
-        ProjectDto response = new ProjectDto(1L, "P2", "CLOSED");
-        when(restTemplate.exchange(eq("/projects/1"), eq(HttpMethod.PUT), any(HttpEntity.class), eq(ProjectDto.class)))
+        ProjectUpdateRequest request = new ProjectUpdateRequest("P2", "ACTIVE");
+        ProjectDto response = new ProjectDto(1L, "P2", "DORMANT");
+        when(restTemplate.exchange(eq("/projects/1/edit"), eq(HttpMethod.PUT), any(HttpEntity.class), eq(ProjectDto.class)))
                 .thenReturn(ResponseEntity.ok(response));
 
         ProjectDto result = projectApiService.updateProject(1L, request);
 
         assertEquals("P2", result.name());
-        verify(restTemplate).exchange(eq("/projects/1"), eq(HttpMethod.PUT), any(HttpEntity.class), eq(ProjectDto.class));
+        verify(restTemplate).exchange(eq("/projects/1/edit"), eq(HttpMethod.PUT), any(HttpEntity.class), eq(ProjectDto.class));
+    }
+
+    @Test
+    void testCloseProject() {
+        ProjectDto response = new ProjectDto(1L, "P1", "TERMINATED");
+        when(restTemplate.exchange(eq("/projects/1/close"), eq(HttpMethod.PUT), eq(null), eq(ProjectDto.class)))
+                .thenReturn(ResponseEntity.ok(response));
+
+        ProjectDto result = projectApiService.closeProject(1L);
+
+        assertEquals("TERMINATED", result.status());
+        verify(restTemplate).exchange(eq("/projects/1/close"), eq(HttpMethod.PUT), eq(null), eq(ProjectDto.class));
     }
 
     @Test
     void testGetProject() {
-        ProjectDto response = new ProjectDto(1L, "P1", "ACTIVE");
+        ProjectDto response = new ProjectDto(1L, "P1", "ACTIVE", "admin");
         when(restTemplate.getForEntity(eq("/projects/1"), eq(ProjectDto.class)))
                 .thenReturn(ResponseEntity.ok(response));
 
@@ -84,7 +96,7 @@ class ProjectApiServiceTest {
 
     @Test
     void testGetProjects() {
-        ProjectDto[] response = {new ProjectDto(1L, "P1", "ACTIVE")};
+        ProjectDto[] response = {new ProjectDto(1L, "P1", "ACTIVE", "admin")};
         when(restTemplate.getForEntity(eq("/projects"), eq(ProjectDto[].class)))
                 .thenReturn(ResponseEntity.ok(response));
 

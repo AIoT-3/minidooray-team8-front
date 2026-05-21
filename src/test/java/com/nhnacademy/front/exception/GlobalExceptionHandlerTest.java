@@ -63,6 +63,20 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void testHandleHttpClientErrorException_WithReferer() throws Exception {
+        String json = "{\"status\":409, \"message\":\"Conflict\", \"path\":\"/test\"}";
+        ErrorResponse errorResponse = new ErrorResponse(409, "Conflict", "/test");
+        HttpStatusCodeException ex = new HttpClientErrorException(HttpStatus.CONFLICT, "Conflict", json.getBytes(), null);
+
+        when(objectMapper.readValue(any(String.class), eq(ErrorResponse.class))).thenReturn(errorResponse);
+        when(request.getHeader("Referer")).thenReturn("http://localhost/previous");
+
+        String view = globalExceptionHandler.handleHttpClientErrorException(ex, request, model);
+
+        assertEquals("redirect:http://localhost/previous", view);
+    }
+
+    @Test
     void testHandleGeneralException() {
         Exception ex = new RuntimeException("Unexpected error");
         when(request.getRequestURI()).thenReturn("/test");

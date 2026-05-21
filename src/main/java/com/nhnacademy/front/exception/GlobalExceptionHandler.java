@@ -53,6 +53,15 @@ public class GlobalExceptionHandler {
         
         String referer = request.getHeader("Referer");
         if (referer != null) {
+            // GET 요청이 실패했는데 Referer가 현재 URL과 같다면 무한 루프 방지를 위해 대시보드로 이동
+            if ("GET".equalsIgnoreCase(request.getMethod()) && referer.endsWith(request.getRequestURI())) {
+                FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
+                if (flashMap != null) {
+                    flashMap.put("errorMessage", errorResponse.message());
+                }
+                return "redirect:/my-projects";
+            }
+
             FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
             if (flashMap != null) {
                 flashMap.put("errorMessage", errorResponse.message());

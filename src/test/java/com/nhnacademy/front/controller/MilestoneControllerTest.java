@@ -30,6 +30,8 @@ class MilestoneControllerTest {
     void testCreateMilestone() throws Exception {
         mockMvc.perform(post("/projects/1/milestones")
                         .param("name", "M1")
+                        .param("startDate", "2024-01-01")
+                        .param("endDate", "2024-12-31")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/projects/1"));

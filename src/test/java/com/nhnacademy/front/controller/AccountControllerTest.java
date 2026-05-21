@@ -53,7 +53,7 @@ class AccountControllerTest {
         mockMvc.perform(post("/signup")
                         .param("id", "user1")
                         .param("email", "test@test.com")
-                        .param("password", "pass")
+                        .param("password", "password123") // Should be at least 8 chars
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));

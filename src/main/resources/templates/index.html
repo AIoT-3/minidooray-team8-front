@@ -109,6 +109,14 @@
                                       th:text="${project.status}">ACTIVE</span>
                                 <div class="dropdown">
                                     <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">⋮</button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="border-radius: 12px;">
+                                        <li th:if="${#authentication.name != project.adminId}">
+                                            <form th:action="@{/projects/{pId}/members/{uId}/delete(pId=${project.projectId}, uId=${#authentication.name})}" method="post">
+                                                <button type="submit" class="dropdown-item text-danger small fw-bold" onclick="return confirm('이 프로젝트에서 탈퇴하시겠습니까?')">🚪 Leave Project</button>
+                                            </form>
+                                        </li>
+                                        <li><a class="dropdown-item small" th:href="@{/projects/{id}(id=${project.projectId})}">자세히 보기</a></li>
+                                    </ul>
                                 </div>
                             </div>
                             <h4 class="card-title fw-bold mb-3 text-truncate" th:text="${project.name}">Project Name</h4>

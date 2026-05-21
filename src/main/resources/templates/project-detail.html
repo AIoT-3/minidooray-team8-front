@@ -104,7 +104,7 @@
             <div class="mb-5">
                 <div class="section-title">
                     Members
-                    <button th:if="${#authentication.name == project.adminId}" class="btn btn-sm btn-link p-0 text-primary fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#addMemberModal">+ Add</button>
+                    <button th:if="${#authentication.name == project.adminId}" class="btn btn-sm btn-link p-0 text-primary fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#manageMembersModal">⚙️ Manage</button>
                 </div>
                 <div th:each="member : ${project.members}" class="d-flex align-items-center mb-3">
                     <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">👤</div>
@@ -143,6 +143,13 @@
                     <button th:if="${#authentication.name == project.adminId}" class="btn btn-outline-dark btn-action" data-bs-toggle="modal" data-bs-target="#editProjectModal">⚙️ Project Settings</button>
                     <form th:if="${project.status == 'ACTIVE' or project.status == 'DORMANT'}" th:action="@{/projects/{id}/close(id=${project.projectId})}" method="post">
                         <button type="submit" class="btn btn-outline-danger btn-action">🔒 Terminate Project</button>
+                    </form>
+                </div>
+
+                <!-- Leave Project Button (Only for non-admins) -->
+                <div th:if="${#authentication.name != project.adminId}">
+                    <form th:action="@{/projects/{pId}/members/{uId}/delete(pId=${project.projectId}, uId=${#authentication.name})}" method="post">
+                        <button type="submit" class="btn btn-outline-warning btn-action" onclick="return confirm('이 프로젝트에서 탈퇴하시겠습니까?')">🚪 Leave Project</button>
                     </form>
                 </div>
                 
@@ -240,25 +247,48 @@
     </main>
 
     <!-- Modals -->
-    <!-- Add Member Modal -->
-    <div class="modal fade" id="addMemberModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- Manage Members Modal -->
+    <div class="modal fade" id="manageMembersModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
                 <div class="modal-header border-0 p-4 pb-0">
-                    <h5 class="fw-bold">Add Member</h5>
+                    <h5 class="fw-bold">Manage Members</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/projects/{id}/members(id=${project.projectId})}" method="post">
-                    <div class="modal-body p-4">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">User ID</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0" name="userId" placeholder="Enter User ID" required>
+                <div class="modal-body p-4">
+                    <!-- Add Member Form (Only for Admin) -->
+                    <div th:if="${#authentication.name == project.adminId}" class="mb-4 p-3 bg-light rounded-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Invite New Member</label>
+                        <form th:action="@{/projects/{id}/members(id=${project.projectId})}" method="post" class="row g-2">
+                            <div class="col-8">
+                                <input type="text" class="form-control border-0 shadow-sm" name="userId" placeholder="Enter User ID" required>
+                            </div>
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-primary w-100 fw-bold">Invite</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Member List -->
+                    <div class="section-title">Current Members</div>
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        <div th:each="member : ${project.members}" class="col">
+                            <div class="d-flex align-items-center p-3 border rounded-4 bg-white shadow-sm">
+                                <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">👤</div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark" th:text="${member.userId}">user_id</div>
+                                    <span th:if="${member.userId == project.adminId}" class="admin-label">ADMIN</span>
+                                </div>
+                                <!-- Remove Button (Admin only, can't remove self) -->
+                                <div th:if="${#authentication.name == project.adminId and member.userId != project.adminId}">
+                                    <form th:action="@{/projects/{pId}/members/{uId}/delete(pId=${project.projectId}, uId=${member.userId})}" method="post">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('이 멤버를 프로젝트에서 제외하시겠습니까?')">Remove</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-0 p-4 pt-0">
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">Invite Member</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

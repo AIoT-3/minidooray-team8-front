@@ -88,4 +88,14 @@ public class ProjectApiService {
         String url = "/projects/" + projectId + "/members";
         restTemplate.postForEntity(url, requestDto, Void.class);
     }
+
+    public void deleteProjectMember(Long projectId, String userId) {
+        String url = "/projects/" + projectId + "/members/" + userId;
+        restTemplate.exchange(
+                url,
+                HttpMethod.DELETE,
+                null,
+                Void.class
+        );
+    }
 }

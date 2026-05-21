@@ -6,49 +6,141 @@
     <title>회원가입 - Minidooray</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; height: 100vh; display: flex; align-items: center; }
-        .signup-card { border: none; border-radius: 1rem; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1); }
-        .signup-header { background: linear-gradient(135deg, #42b72a 0%, #2da44e 100%); color: white; border-radius: 1rem 1rem 0 0 !important; padding: 2rem; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f4f7f9; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background: linear-gradient(135deg, #f4f7f9 0%, #e9f5ee 100%);
+        }
+        .signup-card { 
+            border: none; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); 
+            overflow: hidden;
+            background: white;
+            width: 100%;
+            max-width: 500px;
+        }
+        .signup-header { 
+            background: linear-gradient(135deg, #42b72a 0%, #2da44e 100%); 
+            color: white; 
+            padding: 2.5rem 2rem; 
+            text-align: center;
+        }
+        .signup-body { padding: 2.5rem 3rem; }
+        .form-control {
+            border-radius: 12px;
+            padding: 10px 18px;
+            border: 1px solid #e1e8ed;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .form-control:focus {
+            background-color: white;
+            border-color: #42b72a;
+            box-shadow: 0 0 0 4px rgba(66, 183, 42, 0.1);
+        }
+        .btn-signup {
+            background: #1a1c23;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+        }
+        .btn-signup:hover {
+            background: #2d303a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .login-link { color: #2da44e; font-weight: 700; text-decoration: none; }
+        .login-link:hover { text-decoration: underline; }
+        
+        .form-text-custom {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-top: 6px;
+            display: block;
+        }
+        
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            background-color: #fff5f5;
+            color: #e53e3e;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card signup-card">
-                    <div class="card-header signup-header text-center">
-                        <h3 class="fw-bold mb-0">회원가입</h3>
-                        <p class="small mb-0">새로운 여정을 시작해보세요!</p>
+    <div class="container d-flex flex-column align-items-center py-5">
+        <!-- Error Alert Banner -->
+        <div th:if="${errorMessage}" class="alert alert-custom p-3 mb-4 text-center w-100 shadow-sm" role="alert" style="max-width: 500px;">
+            <strong>알림:</strong> <span th:text="${errorMessage}">에러 메시지</span>
+            <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.7rem;"></button>
+        </div>
+
+        <div class="signup-card">
+            <div class="signup-header">
+                <a href="/" class="text-white text-decoration-none d-inline-block mb-2">
+                    <h2 class="fw-800 mb-0" style="letter-spacing: -1px;">Minidooray</h2>
+                </a>
+                <p class="mb-0 opacity-75">새로운 팀 프로젝트를 시작해보세요!</p>
+            </div>
+            
+            <div class="signup-body">
+                <form th:action="@{/signup}" th:object="${request}" method="post">
+                    <div class="mb-3">
+                        <label for="id" class="form-label small fw-bold text-muted text-uppercase">Account ID</label>
+                        <input type="text" class="form-control" id="id" th:field="*{id}" placeholder="Your unique ID" 
+                               minlength="8" maxlength="50" pattern="(?=.*[A-Za-z])(?=.*\d).*" required>
+                        <span class="form-text-custom">※ 영문, 숫자 포함 8~50자</span>
                     </div>
-                    <div class="card-body p-4">
-                        <form th:action="@{/signup}" th:object="${request}" method="post">
-                            <div class="mb-3">
-                                <label for="id" class="form-label small fw-bold">아이디</label>
-                                <input type="text" class="form-control" id="id" th:field="*{id}" placeholder="사용할 아이디를 입력하세요" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label small fw-bold">이메일</label>
-                                <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="이메일 주소를 입력하세요" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="password" class="form-label small fw-bold">비밀번호</label>
-                                <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="비밀번호를 입력하세요" required>
-                            </div>
-                            <button type="submit" class="btn btn-success w-100 fw-bold py-2 mb-3">가입하기</button>
-                        </form>
-                        
-                        <div class="text-center small">
-                            이미 계정이 있으신가요? <a th:href="@{/login}" class="text-decoration-none fw-bold">로그인</a>
-                        </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label small fw-bold text-muted text-uppercase">Email Address</label>
+                        <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="email@example.com" maxlength="100" required>
+                        <span class="form-text-custom">※ 최대 100자</span>
                     </div>
-                </div>
-                <div class="text-center mt-4">
-                    <a href="/" class="text-muted text-decoration-none small">← 메인 페이지로 돌아가기</a>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label small fw-bold text-muted text-uppercase">Password</label>
+                        <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="••••••••" 
+                               minlength="8" maxlength="255" pattern="(?=.*[A-Za-z])(?=.*\d).*" required>
+                        <span class="form-text-custom">※ 영문, 숫자 포함 8자 이상</span>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" required>
+                        <label class="form-check-label small text-muted" for="terms">이용약관 및 개인정보 처리방침에 동의합니다.</label>
+                    </div>
+
+                    <button type="submit" class="btn-signup">Create Account</button>
+                </form>
+                
+                <div class="text-center mt-5">
+                    <p class="text-muted small">이미 계정이 있으신가요? <a th:href="@{/login}" class="login-link ms-1">로그인</a></p>
                 </div>
             </div>
         </div>
+        
+        <div class="mt-4">
+            <a href="/" class="text-muted text-decoration-none small opacity-75">← 메인 페이지로 돌아가기</a>
+        </div>
     </div>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
