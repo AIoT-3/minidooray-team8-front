@@ -1,6 +1,4 @@
-# Minidooray Team 8 Gateway API Specification
-
-이 문서는 Minidooray Gateway 서비스에서 처리하는 모든 API 엔드포인트와 해당 요청/응답 구조를 상세히 설명합니다.
+# Minidooray Team 8 Front
 
 ---
 
