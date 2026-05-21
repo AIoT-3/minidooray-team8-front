@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.servlet.FlashMap;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -49,6 +51,15 @@ public class GlobalExceptionHandler {
             );
         }
         
+        String referer = request.getHeader("Referer");
+        if (referer != null) {
+            FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
+            if (flashMap != null) {
+                flashMap.put("errorMessage", errorResponse.message());
+            }
+            return "redirect:" + referer;
+        }
+
         model.addAttribute("error", errorResponse);
         return "error";
     }
@@ -68,6 +79,15 @@ public class GlobalExceptionHandler {
                     .collect(Collectors.joining(", "));
         } else {
             message = "유효성 검사 오류가 발생했습니다.";
+        }
+
+        String referer = request.getHeader("Referer");
+        if (referer != null) {
+            FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
+            if (flashMap != null) {
+                flashMap.put("errorMessage", message);
+            }
+            return "redirect:" + referer;
         }
 
         ErrorResponse errorResponse = new ErrorResponse(

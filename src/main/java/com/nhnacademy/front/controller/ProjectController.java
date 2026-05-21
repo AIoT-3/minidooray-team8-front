@@ -1,10 +1,13 @@
 package com.nhnacademy.front.controller;
 
 import com.nhnacademy.front.dto.task.ProjectCreateRequest;
+import com.nhnacademy.front.dto.task.ProjectDetailDto;
 import com.nhnacademy.front.dto.task.ProjectMemberRequest;
+import com.nhnacademy.front.dto.task.TaskDto;
 import com.nhnacademy.front.service.AccountApiService;
 import com.nhnacademy.front.service.ProjectApiService;
 import com.nhnacademy.front.service.TagApiService;
+import com.nhnacademy.front.service.TaskApiService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +16,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import com.nhnacademy.front.dto.task.ProjectUpdateRequest;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/projects")
@@ -22,16 +28,33 @@ public class ProjectController {
     private final ProjectApiService projectApiService;
     private final AccountApiService accountApiService;
     private final TagApiService tagApiService;
+    private final TaskApiService taskApiService;
 
-    public ProjectController(ProjectApiService projectApiService, AccountApiService accountApiService, TagApiService tagApiService) {
+    public ProjectController(ProjectApiService projectApiService, AccountApiService accountApiService, TagApiService tagApiService, TaskApiService taskApiService) {
         this.projectApiService = projectApiService;
         this.accountApiService = accountApiService;
         this.tagApiService = tagApiService;
+        this.taskApiService = taskApiService;
     }
 
     @GetMapping("/{project-id}")
-    public String getProject(@PathVariable("project-id") Long projectId, Model model) {
-        model.addAttribute("project", projectApiService.getProjectDetail(projectId));
+    public String getProject(@PathVariable("project-id") Long projectId, @RequestParam(required = false) Long tagId, Model model) {
+        ProjectDetailDto project = projectApiService.getProjectDetail(projectId);
+        
+        if (tagId != null) {
+            List<TaskDto> filteredTasks = taskApiService.getTasksByTag(projectId, tagId);
+            project = new ProjectDetailDto(
+                    project.projectId(), 
+                    project.name(), 
+                    project.status(), 
+                    project.adminId(), 
+                    project.members(), 
+                    filteredTasks, 
+                    project.milestones()
+            );
+        }
+        
+        model.addAttribute("project", project);
         model.addAttribute("tags", tagApiService.getTags(projectId));
         return "project-detail";
     }

@@ -32,6 +32,12 @@
     </nav>
 
     <div class="container task-container">
+        <!-- Error Alert Banner -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <strong>알림:</strong> <span th:text="${errorMessage}">에러 메시지</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <div class="mb-4">
             <a th:href="@{/projects/{id}(id=${project.projectId})}" class="text-decoration-none small text-muted">← 프로젝트로 돌아가기</a>
         </div>
@@ -80,7 +86,10 @@
                                     </div>
                                     <div class="small mb-2" th:text="${comment.content}">Comment...</div>
                                     <div th:if="${#authentication.name == comment.writerId}" class="text-end">
-                                        <button class="btn btn-link btn-sm p-0 text-decoration-none small text-muted me-2" th:onclick="'openCommentEditModal(' + ${comment.commentId} + ', \'' + ${comment.content} + '\')'">수정</button>
+                                        <button class="btn btn-link btn-sm p-0 text-decoration-none small text-muted me-2" 
+                                                th:data-comment-id="${comment.commentId}" 
+                                                th:data-comment-content="${comment.content}"
+                                                onclick="openCommentEditModal(this.getAttribute('data-comment-id'), this.getAttribute('data-comment-content'))">수정</button>
                                         <form th:action="@{/projects/{pId}/tasks/{tId}/comments/{cId}/delete(pId=${project.projectId}, tId=${task.taskId}, cId=${comment.commentId})}" method="post" class="d-inline" onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
                                             <button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none small text-danger">삭제</button>
                                         </form>
@@ -182,10 +191,22 @@
                     <div class="modal-body py-4">
                         <div class="mb-3">
                             <label class="form-label small fw-bold">마일스톤 선택</label>
-                            <select class="form-select" name="milestoneId">
+                            <select class="form-select mb-2" name="milestoneId">
                                 <option value="">선택 안 함</option>
                                 <option th:each="m : ${project.milestones}" th:value="${m.milestoneId}" th:text="${m.name}" th:selected="${task.milestone != null and task.milestone.milestoneId == m.milestoneId}"></option>
                             </select>
+                        </div>
+                        <div class="p-3 bg-light border rounded-3 mt-2">
+                            <div class="small fw-bold text-primary mb-2">새 마일스톤 생성하여 할당</div>
+                            <input type="text" class="form-control form-control-sm mb-2" name="newMilestoneName" placeholder="New Milestone Name">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="date" class="form-control form-control-sm" name="newMilestoneStartDate">
+                                </div>
+                                <div class="col-6">
+                                    <input type="date" class="form-control form-control-sm" name="newMilestoneEndDate">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
@@ -212,6 +233,10 @@
                             <select class="form-select" name="tagIds" multiple style="height: 120px;">
                                 <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}" th:selected="${task.tags != null and #lists.contains(task.tags.![tagId], tag.tagId)}"></option>
                             </select>
+                        </div>
+                        <div class="p-3 bg-light border rounded-3 mt-3">
+                            <div class="small fw-bold text-primary mb-2">새 태그 생성하여 할당</div>
+                            <input type="text" class="form-control form-control-sm" name="newTagName" placeholder="New Tag Name">
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">

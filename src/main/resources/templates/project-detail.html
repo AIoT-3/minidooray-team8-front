@@ -6,278 +6,257 @@
     <title th:text="${project.name} + ' - Minidooray'">Project Detail</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; min-height: 100vh; }
-        .sidebar { background-color: white; border-right: 1px solid #dee2e6; height: calc(100vh - 56px); position: sticky; top: 56px; overflow-y: auto; padding: 1.5rem; }
-        .section-title { font-size: 0.75rem; font-weight: 700; color: #6c757d; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
-        .task-card { border: none; border-radius: 10px; transition: box-shadow 0.2s; margin-bottom: 0.75rem; }
-        .task-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .tag-badge { font-size: 0.7rem; padding: 0.2em 0.5em; border-radius: 4px; background-color: #e9ecef; color: #495057; margin-right: 0.25rem; }
-        .admin-badge { font-size: 0.65rem; padding: 0.2em 0.5em; vertical-align: middle; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8f9fa; min-height: 100vh; display: flex; }
+        
+        /* Sidebar (Milestones Panel) */
+        .sidebar { width: 320px; background: white; border-right: 1px solid #e1e8ed; height: 100vh; position: fixed; display: flex; flex-direction: column; z-index: 1000; }
+        .sidebar-header { padding: 30px; border-bottom: 1px solid #f0f4f8; }
+        .sidebar-content { padding: 30px; flex-grow: 1; overflow-y: auto; }
+        
+        .section-title { font-size: 0.7rem; font-weight: 700; color: #adb5bd; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Main Content */
+        .main-container { flex-grow: 1; margin-left: 320px; padding: 40px 60px; }
+        
+        /* Task Cards */
+        .task-card { border: none; border-radius: 16px; background: white; transition: all 0.2s; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .task-card:hover { transform: translateX(5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-left: 4px solid #667eea; }
+        .task-title { font-weight: 600; color: #2d3748; }
+        
+        .milestone-badge { background: #f0edff; color: #667eea; font-weight: 700; padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; }
+        .tag-badge { background: #f1f3f5; color: #495057; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; margin-right: 5px; }
+        
+        .admin-label { background: #fff5f5; color: #e53e3e; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+        
+        .collapse-header { cursor: pointer; transition: background 0.2s; border-radius: 12px; padding: 10px; }
+        .collapse-header:hover { background: #f1f3f5; }
+
+        .btn-action { width: 100%; text-align: left; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+        
+        /* Milestone UI Redesign (GitHub Style) */
+        .milestone-item { padding: 15px 0; border-bottom: 1px solid #f0f4f8; }
+        .milestone-item:last-child { border-bottom: none; }
+        .milestone-name { font-size: 0.95rem; font-weight: 700; color: #2d3748; display: block; margin-bottom: 5px; }
+        .milestone-dates { font-size: 0.75rem; color: #718096; margin-bottom: 8px; }
+        .progress-container { margin-bottom: 5px; }
+        .progress { height: 6px; border-radius: 10px; background-color: #edf2f7; }
+        .progress-bar { border-radius: 10px; }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand fw-bold" href="/my-projects">Minidooray</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <span class="nav-link text-light small" th:text="${#authentication.name} + '님 반갑습니다!'">사용자님</span>
-                    </li>
-                </ul>
+    <!-- Fixed Left Sidebar (Now focusing on Milestones) -->
+    <aside class="sidebar shadow-sm">
+        <div class="sidebar-header">
+            <a href="/my-projects" class="text-decoration-none small text-muted d-block mb-3">← Dashboard</a>
+            <h4 class="fw-bold mb-1 text-dark" th:text="${project.name}">Project</h4>
+            <span class="badge bg-success-subtle text-success rounded-pill px-3" th:text="${project.status}">ACTIVE</span>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="section-title">
+                Milestones
+                <button th:if="${#authentication.name == project.adminId}" class="btn btn-sm btn-link p-0 text-primary fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#addMilestoneModal">+ Add</button>
+            </div>
+            
+            <div th:each="milestone : ${project.milestones}" class="milestone-item">
+                <a th:href="'#collapseM' + ${milestoneStat.index}" class="text-decoration-none" data-bs-toggle="collapse">
+                    <span class="milestone-name" th:text="${milestone.name}">Name</span>
+                </a>
+                <div class="milestone-dates">
+                    <span th:if="${milestone.startDate != null}">
+                        🗓️ <span th:text="${milestone.startDate}"></span> ~ <span th:text="${milestone.endDate}"></span>
+                    </span>
+                    <span th:if="${milestone.startDate == null}" class="fst-italic">No dates set</span>
+                </div>
+                <div class="progress-container" th:if="${milestone.startDate != null}">
+                    <div class="progress">
+                        <div class="progress-bar bg-success milestone-time-bar" 
+                             role="progressbar" 
+                             th:data-start="${milestone.startDate}" 
+                             th:data-end="${milestone.endDate}"
+                             style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="small text-muted milestone-progress-text" style="font-size: 0.65rem;">Calculating...</span>
+                    <span class="badge bg-light text-dark rounded-pill" style="font-size: 0.65rem;" 
+                          th:text="${#lists.size(project.tasks.?[milestoneId == __${milestone.milestoneId}__])} + ' Tasks'">0 Tasks</span>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(project.milestones)}" class="text-center py-4">
+                <p class="text-muted small">No milestones yet.</p>
             </div>
         </div>
-    </nav>
+    </aside>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 sidebar d-none d-md-block">
-                <div class="mb-4">
-                    <a href="/my-projects" class="text-decoration-none small text-muted">← 대시보드로 이동</a>
-                    <h4 class="fw-bold mt-2 mb-1" th:text="${project.name}">Project Name</h4>
-                    <span th:class="|badge ${project.status == 'ACTIVE' ? 'bg-success' : 'bg-secondary'} rounded-pill small|" th:text="${project.status}">ACTIVE</span>
+    <!-- Offcanvas for Project Settings, Members, Tags -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="projectSettingsOffcanvas" aria-labelledby="projectSettingsOffcanvasLabel" style="width: 400px;">
+        <div class="offcanvas-header border-bottom p-4">
+            <h5 class="offcanvas-title fw-bold" id="projectSettingsOffcanvasLabel">Project Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-4">
+            <!-- Members Section -->
+            <div class="mb-5">
+                <div class="section-title">
+                    Members
+                    <button th:if="${#authentication.name == project.adminId}" class="btn btn-sm btn-link p-0 text-primary fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#addMemberModal">+ Add</button>
                 </div>
-
-                <!-- Members -->
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center section-title">
-                        멤버
-                        <button th:if="${#authentication.name == project.adminId}" class="btn btn-link p-0 text-primary text-decoration-none fw-bold small" data-bs-toggle="modal" data-bs-target="#addMemberModal">+ 추가</button>
-                    </div>
-                    <ul class="list-unstyled">
-                        <li th:each="member : ${project.members}" class="py-1 d-flex align-items-center">
-                            <span class="me-2">👤</span>
-                            <span th:text="${member.userId}" class="small fw-medium">user_id</span>
-                            <span th:if="${member.userId == project.adminId}" class="badge bg-danger ms-2 admin-badge">Admin</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Milestones -->
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center section-title">
-                        마일스톤
-                        <button th:if="${#authentication.name == project.adminId}" class="btn btn-link p-0 text-primary text-decoration-none fw-bold small" data-bs-toggle="modal" data-bs-target="#addMilestoneModal">+ 추가</button>
-                    </div>
-                    <div th:each="milestone : ${project.milestones}" class="mb-2">
-                        <div class="fw-bold small text-dark" th:text="${milestone.name}">Milestone</div>
-                        <div th:if="${milestone.startDate != null}" class="text-muted" style="font-size: 0.7rem;">
-                            <span th:text="${milestone.startDate}"></span> ~ <span th:text="${milestone.endDate}"></span>
-                        </div>
+                <div th:each="member : ${project.members}" class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">👤</div>
+                    <div class="flex-grow-1">
+                        <div class="small fw-bold text-dark" th:text="${member.userId}">user_id</div>
+                        <span th:if="${member.userId == project.adminId}" class="admin-label">PROJECT ADMIN</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Tags -->
-                <div class="mb-4">
-                    <div class="section-title">필터</div>
-                    <div class="list-group list-group-flush small">
-                        <a th:href="@{/projects/{id}(id=${project.projectId})}" class="list-group-item list-group-item-action border-0 px-0 py-1 fw-bold text-primary">
-                            🚩 마일스톤별 보기
-                        </a>
-                        <button class="list-group-item list-group-item-action border-0 px-0 py-1" onclick="filterByTag(null)">
-                            모든 태그 보기
-                        </button>
-                        <button th:each="tag : ${tags}" class="list-group-item list-group-item-action border-0 px-0 py-1" th:onclick="|filterByTag(${tag.tagId})|">
-                            # <span th:text="${tag.name}">Tag</span>
-                        </button>
-                    </div>
+            <!-- Tags Section -->
+            <div class="mb-5">
+                <div class="section-title">
+                    Tags
+                    <button th:if="${#authentication.name == project.adminId}" class="btn btn-sm btn-link p-0 text-primary fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#addTagModal">+ Add</button>
                 </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button th:each="tag : ${tags}" 
+                            class="btn btn-sm rounded-pill px-3 tag-filter-btn" 
+                            style="background: #f1f3f5; color: #495057; border: 1px solid #e9ecef; font-size: 0.75rem; font-weight: 600;"
+                            th:text="${tag.name}"
+                            th:data-tag-id="${tag.tagId}"
+                            onclick="filterByTag(this.getAttribute('data-tag-id'))">
+                        Tag
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" style="font-size: 0.75rem; font-weight: 600;" onclick="filterByTag(null)">All</button>
+                </div>
+            </div>
 
-                <div class="mt-5 border-top pt-3">
-                    <button th:if="${#authentication.name == project.adminId}" class="btn btn-outline-dark btn-sm w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editProjectModal">프로젝트 수정</button>
-                    <form th:if="${project.status == 'ACTIVE'}" th:action="@{/projects/{id}/close(id=${project.projectId})}" method="post">
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">프로젝트 종료</button>
+            <!-- Project Controls -->
+            <div class="mt-5 border-top pt-4">
+                <div class="section-title">Controls</div>
+                
+                <!-- Only show settings if NOT terminated -->
+                <div th:if="${project.status != 'TERMINATED'}">
+                    <button th:if="${#authentication.name == project.adminId}" class="btn btn-outline-dark btn-action" data-bs-toggle="modal" data-bs-target="#editProjectModal">⚙️ Project Settings</button>
+                    <form th:if="${project.status == 'ACTIVE' or project.status == 'DORMANT'}" th:action="@{/projects/{id}/close(id=${project.projectId})}" method="post">
+                        <button type="submit" class="btn btn-outline-danger btn-action">🔒 Terminate Project</button>
                     </form>
                 </div>
-            </nav>
-
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="fw-bold">할 일 목록</h3>
-                    <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ 새 할 일 추가</button>
+                
+                <!-- Notice for terminated projects -->
+                <div th:if="${project.status == 'TERMINATED'}" class="p-3 bg-light rounded-3 border">
+                    <p class="small text-muted mb-0">🔒 이 프로젝트는 종료(TERMINATED) 상태이며, 보안 및 정책상 설정을 변경할 수 없습니다.</p>
                 </div>
-
-                <div id="task-list-container">
-                    <!-- Milestone Groups -->
-                    <div th:each="milestone, stat : ${project.milestones}" class="mb-4">
-                        <h6 class="fw-bold mb-3 d-flex align-items-center" style="cursor: pointer; user-select: none;" 
-                            data-bs-toggle="collapse" th:data-bs-target="'#collapseMilestone' + ${stat.index}">
-                            <span class="badge bg-primary me-2">M</span>
-                            <span th:text="${milestone.name}">Milestone</span>
-                            <span class="ms-auto text-muted small">▼</span>
-                        </h6>
-                        <div class="collapse show" th:id="'collapseMilestone' + ${stat.index}">
-                            <div class="row row-cols-1 g-2">
-                                <div th:each="task : ${project.tasks}" th:if="${task.milestoneId == milestone.milestoneId}" class="col">
-                                    <a th:href="@{/projects/{pId}/tasks/{tId}(pId=${project.projectId}, tId=${task.taskId})}" class="card task-card shadow-sm text-decoration-none text-dark">
-                                        <div class="card-body py-3 px-4 d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="fw-bold mb-1" th:text="${task.title}">Task Title</div>
-                                                <div class="d-flex">
-                                                    <span th:each="tag : ${task.tags}" th:text="${tag.name}" class="tag-badge">Tag</span>
-                                                </div>
-                                            </div>
-                                            <div class="text-end text-muted small">
-                                                <div th:text="'by ' + ${task.writerId}">writer</div>
-                                                <div th:text="${#temporals.format(task.createdAt, 'MM-dd HH:mm')}">date</div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="col" th:if="${#lists.isEmpty(project.tasks.?[milestoneId == __${milestone.milestoneId}__])}">
-                                    <div class="p-4 text-center text-muted bg-white rounded shadow-sm small border-dashed">이 마일스톤에 할 일이 없습니다.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- No Milestone -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-3 d-flex align-items-center" style="cursor: pointer; user-select: none;"
-                            data-bs-toggle="collapse" data-bs-target="#collapseNoMilestone">
-                            <span class="badge bg-secondary me-2">?</span>
-                            <span>미할당</span>
-                            <span class="ms-auto text-muted small">▼</span>
-                        </h6>
-                        <div class="collapse show" id="collapseNoMilestone">
-                            <div class="row row-cols-1 g-2">
-                                <div th:each="task : ${project.tasks}" th:if="${task.milestoneId == null}" class="col">
-                                    <a th:href="@{/projects/{pId}/tasks/{tId}(pId=${project.projectId}, tId=${task.taskId})}" class="card task-card shadow-sm text-decoration-none text-dark">
-                                        <div class="card-body py-3 px-4 d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div class="fw-bold mb-1" th:text="${task.title}">Task Title</div>
-                                                <div class="d-flex">
-                                                    <span th:each="tag : ${task.tags}" th:text="${tag.name}" class="tag-badge">Tag</span>
-                                                </div>
-                                            </div>
-                                            <div class="text-end text-muted small">
-                                                <div th:text="'by ' + ${task.writerId}">writer</div>
-                                                <div th:text="${#temporals.format(task.createdAt, 'MM-dd HH:mm')}">date</div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="col" th:if="${#lists.isEmpty(project.tasks.?[milestoneId == null])}">
-                                    <div class="p-4 text-center text-muted bg-white rounded shadow-sm small border-dashed">미할당된 할 일이 없습니다.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+            </div>
         </div>
     </div>
+
+    <!-- Main Workspace -->
+    <main class="main-container">
+        <!-- Error Alert Banner -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <strong>알림:</strong> <span th:text="${errorMessage}">에러 메시지</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="fw-800 display-5 mb-1">Workspace</h1>
+                <p class="text-muted">마일스톤 별로 태스크를 확인하고 관리하세요.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-dark px-4 py-2 rounded-pill fw-bold shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#projectSettingsOffcanvas">⚙️ Project Menu</button>
+                <button class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">+ Create New Task</button>
+            </div>
+        </div>
+
+        <div id="task-list-container">
+            <!-- Milestone Groups -->
+            <div th:each="milestone, stat : ${project.milestones}" class="mb-5">
+                <div class="collapse-header d-flex align-items-center mb-3" data-bs-toggle="collapse" th:data-bs-target="'#collapseM' + ${stat.index}">
+                    <span class="milestone-badge me-3">MILESTONE</span>
+                    <h5 class="fw-bold mb-0 flex-grow-1">
+                        <span th:text="${milestone.name}">Name</span>
+                        <span class="text-muted small ms-2 fw-normal" th:if="${milestone.startDate != null}">
+                            (<span th:text="${milestone.startDate}"></span> ~ <span th:text="${milestone.endDate}"></span>)
+                        </span>
+                    </h5>
+                    <span class="text-muted small">Expand / Collapse</span>
+                </div>
+                
+                <div class="collapse show" th:id="'collapseM' + ${stat.index}">
+                    <div class="row row-cols-1 g-3">
+                        <div th:each="task : ${project.tasks}" th:if="${task.milestoneId == milestone.milestoneId}" class="col">
+                            <a th:href="@{/projects/{pId}/tasks/{tId}(pId=${project.projectId}, tId=${task.taskId})}" class="card task-card text-decoration-none p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h5 class="task-title mb-2" th:text="${task.title}">Title</h5>
+                                        <div class="d-flex flex-wrap">
+                                            <span th:each="tag : ${task.tags}" th:text="${tag.name}" class="tag-badge">Tag</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end ms-4">
+                                        <div class="small fw-bold text-dark" th:text="${task.writerId}">writer</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;" th:text="${#temporals.format(task.createdAt, 'MM-dd HH:mm')}">date</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unassigned Tasks -->
+            <div class="mb-5">
+                <div class="collapse-header d-flex align-items-center mb-3" data-bs-toggle="collapse" data-bs-target="#collapseUnassigned">
+                    <span class="badge bg-secondary-subtle text-secondary me-3 px-3">BACKLOG</span>
+                    <h5 class="fw-bold mb-0 flex-grow-1">미할당 태스크</h5>
+                </div>
+                <div class="collapse show" id="collapseUnassigned">
+                    <div class="row row-cols-1 g-3">
+                        <div th:each="task : ${project.tasks}" th:if="${task.milestoneId == null}" class="col">
+                            <a th:href="@{/projects/{pId}/tasks/{tId}(pId=${project.projectId}, tId=${task.taskId})}" class="card task-card text-decoration-none p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h5 class="task-title mb-2" th:text="${task.title}">Title</h5>
+                                        <div class="d-flex flex-wrap">
+                                            <span th:each="tag : ${task.tags}" th:text="${tag.name}" class="tag-badge">Tag</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end ms-4">
+                                        <div class="small fw-bold text-dark" th:text="${task.writerId}">writer</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;" th:text="${#temporals.format(task.createdAt, 'MM-dd HH:mm')}">date</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <!-- Modals -->
     <!-- Add Member Modal -->
     <div class="modal fade" id="addMemberModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">새 멤버 추가</h5>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Add Member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form th:action="@{/projects/{id}/members(id=${project.projectId})}" method="post">
-                    <div class="modal-body">
+                    <div class="modal-body p-4">
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">유저 ID</label>
-                            <input type="text" class="form-control" name="userId" placeholder="추가할 유저의 ID를 입력하세요" required>
+                            <label class="form-label small fw-bold text-muted">User ID</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" name="userId" placeholder="Enter User ID" required>
                         </div>
                     </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary px-4">추가하기</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Task Modal (Simplified for brevity in replacement, but fully featured) -->
-    <div class="modal fade" id="addTaskModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">새 할 일 추가</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form th:action="@{/projects/{id}/tasks(id=${project.projectId})}" method="post">
-                    <input type="hidden" name="projectId" th:value="${project.projectId}">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">제목</label>
-                            <input type="text" class="form-control" name="title" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">내용</label>
-                            <textarea class="form-control" name="content" rows="4" required></textarea>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold">마일스톤</label>
-                                <select class="form-select" name="milestoneId">
-                                    <option value="">선택 안 함</option>
-                                    <option th:each="m : ${project.milestones}" th:value="${m.milestoneId}" th:text="${m.name}"></option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold">태그 (복수 선택 가능)</label>
-                                <select class="form-select" name="tagIds" multiple style="height: 100px;">
-                                    <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}"></option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="p-3 bg-light rounded small border">
-                            <div class="fw-bold mb-2">또는 새로 생성하여 할당</div>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <input type="text" class="form-control form-control-sm" name="newMilestoneName" placeholder="새 마일스톤 명">
-                                </div>
-                                <div class="col-6">
-                                    <input type="text" class="form-control form-control-sm" name="newTagName" placeholder="새 태그 명">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary px-4">저장하기</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Project Modal -->
-    <div class="modal fade" id="editProjectModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold">프로젝트 수정</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form th:action="@{/projects/{id}/edit(id=${project.projectId})}" method="post">
-                    <div class="modal-body py-4">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">프로젝트 이름</label>
-                            <input type="text" class="form-control" name="name" th:value="${project.name}" required>
-                        </div>
-                        <div class="mb-0">
-                            <label class="form-label small fw-bold">상태</label>
-                            <select class="form-select" name="status">
-                                <option value="ACTIVE" th:selected="${project.status == 'ACTIVE'}">ACTIVE</option>
-                                <option value="DORMANT" th:selected="${project.status == 'DORMANT'}">DORMANT</option>
-                                <option value="CLOSED" th:selected="${project.status == 'CLOSED'}">CLOSED</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary px-4">수정하기</button>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">Invite Member</button>
                     </div>
                 </form>
             </div>
@@ -287,78 +266,202 @@
     <!-- Add Milestone Modal -->
     <div class="modal fade" id="addMilestoneModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold">새 마일스톤 추가</h5>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Add Milestone</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form th:action="@{/projects/{id}/milestones(id=${project.projectId})}" method="post">
-                    <div class="modal-body py-4">
+                    <div class="modal-body p-4">
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">마일스톤 이름</label>
-                            <input type="text" class="form-control" name="name" placeholder="마일스톤 이름을 입력하세요" required>
+                            <label class="form-label small fw-bold text-muted">Name</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" name="name" placeholder="Milestone Name" required>
                         </div>
                         <div class="row">
                             <div class="col-6">
-                                <label class="form-label small fw-bold">시작일</label>
-                                <input type="date" class="form-control" name="startDate">
+                                <label class="form-label small fw-bold text-muted">Start Date</label>
+                                <input type="date" class="form-control bg-light border-0" name="startDate" required>
                             </div>
                             <div class="col-6">
-                                <label class="form-label small fw-bold">종료일</label>
-                                <input type="date" class="form-control" name="endDate">
+                                <label class="form-label small fw-bold text-muted">End Date</label>
+                                <input type="date" class="form-control bg-light border-0" name="endDate" required>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary px-4">추가하기</button>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">Create Milestone</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:inline="javascript">
-        const projectId = [[${project.projectId}]];
-        function filterByTag(tagId) {
-            const url = `/projects/${projectId}/tasks` + (tagId ? `?tagId=${tagId}` : '');
-            fetch(url)
-                .then(response => response.json())
-                .then(tasks => {
-                    const container = document.getElementById('task-list-container');
-                    container.innerHTML = '';
-                    if (tasks.length === 0) {
-                        container.innerHTML = '<div class="alert alert-light text-center py-5 border">조건에 맞는 할 일이 없습니다.</div>';
-                        return;
-                    }
-                    const row = document.createElement('div');
-                    row.className = 'row row-cols-1 g-2';
-                    tasks.forEach(task => {
-                        const col = document.createElement('div');
-                        col.className = 'col';
-                        const tagsHtml = (task.tags || []).map(t => `<span class="tag-badge">${t.name}</span>`).join('');
-                        const dateStr = task.createdAt ? new Date(task.createdAt).toLocaleString([], {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'}) : '';
-                        col.innerHTML = `
-                            <a href="/projects/${projectId}/tasks/${task.taskId}" class="card task-card shadow-sm text-decoration-none text-dark">
-                                <div class="card-body py-3 px-4 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="fw-bold mb-1">${task.title}</div>
-                                        <div class="d-flex">${tagsHtml}</div>
-                                    </div>
-                                    <div class="text-end text-muted small">
-                                        <div>by ${task.writerId}</div>
-                                        <div>${dateStr}</div>
+    <!-- Add Tag Modal -->
+    <div class="modal fade" id="addTagModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Create Tag</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/projects/{id}/tags(id=${project.projectId})}" method="post">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Tag Name</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" name="name" placeholder="e.g. Bug, Feature, UI" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">Create Tag</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Project Modal -->
+    <div class="modal fade" id="editProjectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Project Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/projects/{id}/edit(id=${project.projectId})}" method="post">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Project Name</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" name="name" th:value="${project.name}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Status</label>
+                            <select class="form-select bg-light border-0" name="status">
+                                <option value="ACTIVE" th:selected="${project.status == 'ACTIVE'}">ACTIVE</option>
+                                <option value="DORMANT" th:selected="${project.status == 'DORMANT'}">DORMANT</option>
+                                <option value="TERMINATED" th:selected="${project.status == 'TERMINATED'}">TERMINATED</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn btn-dark w-100 rounded-pill fw-bold py-2">Update Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="fw-bold">Create New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/projects/{id}/tasks(id=${project.projectId})}" method="post">
+                    <input type="hidden" name="projectId" th:value="${project.projectId}">
+                    <div class="modal-body p-4">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Title</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0" name="title" placeholder="What needs to be done?" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Description</label>
+                            <textarea class="form-control bg-light border-0" name="content" rows="4" placeholder="Add more details..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Assign Milestone</label>
+                                <select class="form-select bg-light border-0 mb-2" name="milestoneId">
+                                    <option value="">No Milestone</option>
+                                    <option th:each="m : ${project.milestones}" th:value="${m.milestoneId}" th:text="${m.name}"></option>
+                                </select>
+                                <div class="p-3 bg-white border rounded-3 mt-2">
+                                    <div class="small fw-bold text-primary mb-2">Or Create New Milestone</div>
+                                    <input type="text" class="form-control form-control-sm mb-2" name="newMilestoneName" placeholder="New Milestone Name">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input type="date" class="form-control form-control-sm" name="newMilestoneStartDate">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="date" class="form-control form-control-sm" name="newMilestoneEndDate">
+                                        </div>
                                     </div>
                                 </div>
-                            </a>
-                        `;
-                        row.appendChild(col);
-                    });
-                    container.appendChild(row);
-                });
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Tags</label>
+                                <div class="d-flex flex-wrap gap-2 pt-1 mb-3">
+                                    <div th:each="tag : ${tags}" class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="tagIds" th:value="${tag.tagId}" th:id="'tag' + ${tag.tagId}">
+                                        <label class="form-check-label small" th:for="'tag' + ${tag.tagId}" th:text="${tag.name}"></label>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white border rounded-3">
+                                    <div class="small fw-bold text-primary mb-2">Or Create New Tag</div>
+                                    <input type="text" class="form-control form-control-lg bg-light border-0" name="newTagName" placeholder="New Tag Name">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold py-2">Create Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        function filterByTag(tagId) {
+            const projectId = [[${project.projectId}]];
+            window.location.href = tagId ? `/projects/${projectId}?tagId=${tagId}` : `/projects/${projectId}`;
         }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const bars = document.querySelectorAll('.milestone-time-bar');
+            const today = new Date().setHours(0,0,0,0);
+            
+            bars.forEach(bar => {
+                const startStr = bar.getAttribute('data-start');
+                const endStr = bar.getAttribute('data-end');
+                const textEl = bar.closest('.milestone-item').querySelector('.milestone-progress-text');
+                
+                if (!startStr || !endStr) {
+                    textEl.innerText = 'No dates set';
+                    return;
+                }
+                
+                const start = new Date(startStr).getTime();
+                const end = new Date(endStr).getTime();
+                
+                let percent = 0;
+                let statusText = '';
+                
+                if (today < start) {
+                    percent = 0;
+                    statusText = 'Planned (Starts in ' + Math.ceil((start - today) / (1000*60*60*24)) + ' days)';
+                    bar.classList.remove('bg-success');
+                    bar.classList.add('bg-secondary');
+                } else if (today > end) {
+                    percent = 100;
+                    statusText = 'Completed / Past Due';
+                    bar.classList.remove('bg-success');
+                    bar.classList.add('bg-danger');
+                } else {
+                    const total = end - start;
+                    const elapsed = today - start;
+                    percent = Math.round((elapsed / total) * 100);
+                    statusText = percent + '% Time Elapsed';
+                }
+                
+                bar.style.width = percent + '%';
+                textEl.innerText = statusText;
+            });
+        });
     </script>
 </body>
 </html>
