@@ -7,6 +7,6 @@ import java.time.LocalDate;
 
 public record MilestoneCreateRequest(
         @NotBlank @Size(max = 50) String name,
-        @NotNull LocalDate startDate,
-        @NotNull LocalDate endDate
+        LocalDate startDate,
+        LocalDate endDate
 ) {}

@@ -49,6 +49,16 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
+    void testUpdateComment_Success() throws Exception {
+        mockMvc.perform(post("/projects/1/tasks/2/comments/3/edit")
+                        .param("content", "Updated Comment")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/projects/1/tasks/2"));
+    }
+
+    @Test
+    @WithMockUser
     void testDeleteComment() throws Exception {
         mockMvc.perform(post("/projects/1/tasks/2/comments/3/delete")
                         .with(csrf()))

@@ -68,7 +68,7 @@ class TaskApiServiceTest {
         TaskDto response = new TaskDto(taskId, null, "Updated", "Content", "user1", LocalDateTime.now(), List.of());
         
         when(restTemplate.exchange(
-                eq("/projects/" + projectId + "/tasks/" + taskId),
+                eq("/projects/" + projectId + "/tasks/" + taskId + "/edit"),
                 eq(HttpMethod.PUT),
                 any(HttpEntity.class),
                 eq(TaskDto.class)))

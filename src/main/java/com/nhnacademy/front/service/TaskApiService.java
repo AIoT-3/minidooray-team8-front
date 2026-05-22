@@ -32,7 +32,7 @@ public class TaskApiService {
     }
 
     public TaskDto updateTask(Long projectId, Long taskId, TaskUpdateRequest request) {
-        String url = "/projects/" + projectId + "/tasks/" + taskId;
+        String url = "/projects/" + projectId + "/tasks/" + taskId + "/edit";
         HttpEntity<TaskUpdateRequest> entity = new HttpEntity<>(request);
         ResponseEntity<TaskDto> response = restTemplate.exchange(url, HttpMethod.PUT, entity, TaskDto.class);
         return response.getBody();
