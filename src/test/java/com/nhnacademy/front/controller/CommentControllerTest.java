@@ -2,6 +2,7 @@ package com.nhnacademy.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.service.CommentApiService;
+import com.nhnacademy.front.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -10,10 +11,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CommentController.class)
+@WebMvcTest({CommentController.class, GlobalExceptionHandler.class})
 class CommentControllerTest {
 
     @Autowired
@@ -27,12 +27,24 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    void testCreateComment() throws Exception {
+    void testCreateComment_Success() throws Exception {
         mockMvc.perform(post("/projects/1/tasks/2/comments")
                         .param("content", "New Comment")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/projects/1/tasks/2"));
+    }
+
+    @Test
+    @WithMockUser
+    void testCreateComment_ValidationFailure() throws Exception {
+        mockMvc.perform(post("/projects/1/tasks/2/comments")
+                        .param("content", "")
+                        .header("Referer", "/projects/1/tasks/2")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/projects/1/tasks/2"))
+                .andExpect(flash().attributeExists("errorMessage"));
     }
 
     @Test

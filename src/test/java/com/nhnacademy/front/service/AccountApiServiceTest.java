@@ -30,14 +30,14 @@ class AccountApiServiceTest {
 
     @Test
     void testSignup() {
-        SignupRequest request = new SignupRequest("user1", "user@test.com", "pass");
-        SignupResponse response = new SignupResponse("user1", "ACTIVE");
-        when(restTemplate.postForEntity(eq("/accounts/signup"), eq(request), eq(SignupResponse.class)))
+        SignupRequest request = new SignupRequest("user1234", "user@test.com", "password123");
+        SignupResponse response = new SignupResponse("user1234", "ACTIVE");
+        when(restTemplate.postForEntity("/accounts/signup", request, SignupResponse.class))
                 .thenReturn(ResponseEntity.ok(response));
 
         SignupResponse result = accountApiService.signup(request);
 
-        assertEquals("user1", result.id());
+        assertEquals("user1234", result.id());
         verify(restTemplate).postForEntity("/accounts/signup", request, SignupResponse.class);
     }
 
@@ -45,7 +45,7 @@ class AccountApiServiceTest {
     void testLogin() {
         LoginRequest request = new LoginRequest("user1", "pass");
         LoginResponse response = new LoginResponse("user1");
-        when(restTemplate.postForEntity(eq("/accounts/login"), eq(request), eq(LoginResponse.class)))
+        when(restTemplate.postForEntity("/accounts/login", request, LoginResponse.class))
                 .thenReturn(ResponseEntity.ok(response));
 
         LoginResponse result = accountApiService.login(request);
@@ -71,7 +71,7 @@ class AccountApiServiceTest {
     @Test
     void testGetUser() {
         UserDto response = new UserDto("user1", "user@test.com", "pass", "ACTIVE");
-        when(restTemplate.getForEntity(eq("/accounts/users/user1"), eq(UserDto.class)))
+        when(restTemplate.getForEntity("/accounts/users/user1", UserDto.class))
                 .thenReturn(ResponseEntity.ok(response));
 
         UserDto result = accountApiService.getUser("user1");

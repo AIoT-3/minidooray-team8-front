@@ -14,8 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +48,7 @@ class ProjectApiServiceTest {
     @Test
     void testUpdateProject() {
         ProjectUpdateRequest request = new ProjectUpdateRequest("P2", "ACTIVE");
-        ProjectDto response = new ProjectDto(1L, "P2", "DORMANT");
+        ProjectDto response = new ProjectDto(1L, "P2", "DORMANT", "user1");
         when(restTemplate.exchange(eq("/projects/1/edit"), eq(HttpMethod.PUT), any(HttpEntity.class), eq(ProjectDto.class)))
                 .thenReturn(ResponseEntity.ok(response));
 
@@ -60,7 +60,7 @@ class ProjectApiServiceTest {
 
     @Test
     void testCloseProject() {
-        ProjectDto response = new ProjectDto(1L, "P1", "TERMINATED");
+        ProjectDto response = new ProjectDto(1L, "P1", "TERMINATED", "user1");
         when(restTemplate.exchange(eq("/projects/1/close"), eq(HttpMethod.PUT), eq(null), eq(ProjectDto.class)))
                 .thenReturn(ResponseEntity.ok(response));
 
@@ -85,7 +85,7 @@ class ProjectApiServiceTest {
     @Test
     void testGetProjectDetail() {
         ProjectDetailDto response = new ProjectDetailDto(1L, "P1", "ACTIVE", "admin", List.of(), List.of(), List.of());
-        when(restTemplate.getForEntity(eq("/projects/1"), eq(ProjectDetailDto.class)))
+        when(restTemplate.getForEntity("/projects/1", ProjectDetailDto.class))
                 .thenReturn(ResponseEntity.ok(response));
 
         ProjectDetailDto result = projectApiService.getProjectDetail(1L);
@@ -105,6 +105,16 @@ class ProjectApiServiceTest {
         assertEquals(1, result.size());
         assertEquals("P1", result.get(0).name());
         verify(restTemplate).getForEntity("/projects", ProjectDto[].class);
+    }
+
+    @Test
+    void testGetProjects_NullBody() {
+        when(restTemplate.getForEntity(anyString(), eq(ProjectDto[].class)))
+                .thenReturn(ResponseEntity.ok(null));
+
+        List<ProjectDto> result = projectApiService.getProjects();
+
+        assertTrue(result.isEmpty());
     }
 
     @Test

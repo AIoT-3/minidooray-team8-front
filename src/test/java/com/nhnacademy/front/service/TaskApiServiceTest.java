@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +51,7 @@ class TaskApiServiceTest {
         Long projectId = 1L;
         Long taskId = 1L;
         TaskDetailDto response = new TaskDetailDto(taskId, "T1", "Content", "user1", LocalDateTime.now(), null, List.of(), List.of());
-        when(restTemplate.getForEntity(eq("/projects/" + projectId + "/tasks/" + taskId), eq(TaskDetailDto.class)))
+        when(restTemplate.getForEntity("/projects/" + projectId + "/tasks/" + taskId, TaskDetailDto.class))
                 .thenReturn(ResponseEntity.ok(response));
 
         TaskDetailDto result = taskApiService.getTask(projectId, taskId);
@@ -107,5 +107,31 @@ class TaskApiServiceTest {
         taskApiService.addTags(projectId, taskId, request);
         
         verify(restTemplate).postForEntity("/projects/" + projectId + "/tasks/" + taskId + "/tags", request, Void.class);
+    }
+
+    @Test
+    void testGetTasksByTag() {
+        Long projectId = 1L;
+        Long tagId = 10L;
+        TaskDto[] response = {new TaskDto(1L, null, "T1", "C1", "user1", LocalDateTime.now(), List.of())};
+        when(restTemplate.getForEntity("/projects/" + projectId + "/tasks?tagId=" + tagId, TaskDto[].class))
+                .thenReturn(ResponseEntity.ok(response));
+
+        List<TaskDto> result = taskApiService.getTasksByTag(projectId, tagId);
+
+        assertEquals(1, result.size());
+        assertEquals("T1", result.getFirst().title());
+    }
+
+    @Test
+    void testGetTasksByTag_NullBody() {
+        Long projectId = 1L;
+        Long tagId = 10L;
+        when(restTemplate.getForEntity(anyString(), eq(TaskDto[].class)))
+                .thenReturn(ResponseEntity.ok(null));
+
+        List<TaskDto> result = taskApiService.getTasksByTag(projectId, tagId);
+
+        assertTrue(result.isEmpty());
     }
 }

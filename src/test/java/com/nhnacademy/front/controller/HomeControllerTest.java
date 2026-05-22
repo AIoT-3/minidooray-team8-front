@@ -2,6 +2,7 @@ package com.nhnacademy.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.service.ProjectApiService;
+import com.nhnacademy.front.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(HomeController.class)
+@WebMvcTest({HomeController.class, GlobalExceptionHandler.class})
 class HomeControllerTest {
 
     @Autowired

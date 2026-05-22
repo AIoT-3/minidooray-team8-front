@@ -5,7 +5,7 @@
 ## 1. Account API (계정 관리)
 
 ### 1.1 회원가입
-- **Endpoint**: `POST /signup`
+- **Endpoint**: `POST /accounts/signup`
 - **Request (SignupRequest)**:
   ```json
   {
@@ -23,7 +23,7 @@
   ```
 
 ### 1.2 로그인
-- **Endpoint**: `POST /login`
+- **Endpoint**: `POST /accounts/login`
 - **Request (LoginRequest)**:
   ```json
   {
@@ -44,7 +44,7 @@
 - **Description**: 현재 세션을 무효화(invalidate)합니다.
 
 ### 1.4 사용자 상태 변경
-- **Endpoint**: `POST /users/{user-id}/status`
+- **Endpoint**: `PUT /accounts/users/{user-id}/status`
 - **Request (UserStatusUpdateRequest)**:
   ```json
   {
@@ -53,7 +53,7 @@
   ```
 
 ### 1.5 사용자 정보 조회
-- **Endpoint**: `GET /users/{user-id}`
+- **Endpoint**: `GET /accounts/users/{user-id}`
 - **Response (UserDto)**:
   ```json
   {
@@ -123,7 +123,7 @@
 - **Response (ProjectDto)**: 생성된 프로젝트 정보 반환
 
 ### 2.4 프로젝트 수정
-- **Endpoint**: `POST /projects/{project-id}/edit`
+- **Endpoint**: `PUT /projects/{project-id}/edit`
 - **Request (ProjectUpdateRequest)**:
   ```json
   {
@@ -133,8 +133,8 @@
   ```
 
 ### 2.5 프로젝트 종료
-- **Endpoint**: `POST /projects/{project-id}/close`
-- **Description**: 프로젝트 상태를 `CLOSED`로 강제 업데이트합니다.
+- **Endpoint**: `PUT /projects/{project-id}/close`
+- **Description**: 프로젝트 상태를 `TERMINATED`로 강제 업데이트합니다.
 
 ### 2.6 프로젝트 멤버 추가
 - **Endpoint**: `POST /projects/{project-id}/members`
@@ -144,6 +144,10 @@
     "userId": "newuser123"
   }
   ```
+
+### 2.7 프로젝트 멤버 삭제 (탈퇴/강퇴)
+- **Endpoint**: `DELETE /projects/{project-id}/members/{user-id}`
+- **Description**: 프로젝트에서 특정 멤버를 삭제하거나 본인이 탈퇴합니다.
 
 ---
 
@@ -200,10 +204,11 @@
   - `newMilestoneEndDate` (LocalDate): 새 마일스톤 종료일
   - `tagIds` (List<Long>): 기존 태그 ID 목록 할당
   - `newTagName` (String): 새 태그 생성 및 추가 할당
+- **Response (TaskDto)**: 생성된 업무 정보 반환
 - **Description**: 새로운 업무를 생성합니다. 파라미터를 통해 마일스톤이나 태그를 즉석에서 생성하여 할당할 수 있습니다.
 
 ### 3.3 업무 수정
-- **Endpoint**: `POST /projects/{project-id}/tasks/{task-id}/edit`
+- **Endpoint**: `PUT /projects/{project-id}/tasks/{task-id}`
 - **Request (TaskUpdateRequest)**:
   ```json
   {
@@ -213,7 +218,7 @@
   ```
 
 ### 3.4 업무 삭제
-- **Endpoint**: `POST /projects/{project-id}/tasks/{task-id}/delete`
+- **Endpoint**: `DELETE /projects/{project-id}/tasks/{task-id}`
 
 ### 3.5 업무 마일스톤 설정
 - **Endpoint**: `POST /projects/{project-id}/tasks/{task-id}/milestones`
@@ -293,7 +298,7 @@
 - **Response (MilestoneDto)**: 생성된 마일스톤 정보 반환
 
 ### 4.3 마일스톤 수정
-- **Endpoint**: `POST /projects/{project-id}/milestones/{milestone-id}/edit`
+- **Endpoint**: `PUT /projects/{project-id}/milestones/{milestone-id}`
 - **Request (MilestoneCreateRequest)**:
   ```json
   {
@@ -304,7 +309,7 @@
   ```
 
 ### 4.4 마일스톤 삭제
-- **Endpoint**: `POST /projects/{project-id}/milestones/{milestone-id}/delete`
+- **Endpoint**: `DELETE /projects/{project-id}/milestones/{milestone-id}`
 - **Description**: 해당 마일스톤을 삭제합니다.
 
 ---
@@ -338,7 +343,7 @@
 - **Response (TagDto)**: 생성된 태그 정보 반환
 
 ### 5.3 태그 수정
-- **Endpoint**: `POST /projects/{project-id}/tags/{tag-id}/edit`
+- **Endpoint**: `PUT /projects/{project-id}/tags/{tag-id}`
 - **Request (TagCreateRequest)**:
   ```json
   {
@@ -347,7 +352,7 @@
   ```
 
 ### 5.4 태그 삭제
-- **Endpoint**: `POST /projects/{project-id}/tags/{tag-id}/delete`
+- **Endpoint**: `DELETE /projects/{project-id}/tags/{tag-id}`
 - **Description**: 해당 태그를 삭제합니다.
 
 ---
@@ -364,7 +369,7 @@
   ```
 
 ### 6.2 댓글 수정
-- **Endpoint**: `POST /projects/{project-id}/tasks/{task-id}/comments/{comment-id}/edit`
+- **Endpoint**: `PUT /projects/{project-id}/tasks/{task-id}/comments/{comment-id}/edit`
 - **Request (CommentCreateRequest)**:
   ```json
   {
@@ -373,9 +378,9 @@
   ```
 
 ### 6.3 댓글 삭제
-- **Endpoint**: `POST /projects/{project-id}/tasks/{task-id}/comments/{comment-id}/delete`
+- **Endpoint**: `DELETE /projects/{project-id}/tasks/{task-id}/comments/{comment-id}`
 
-r---
+---
 
 ## 7. Front-End Specification (프론트엔드 명세)
 

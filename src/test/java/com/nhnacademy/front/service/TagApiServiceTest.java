@@ -15,8 +15,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,12 +68,22 @@ class TagApiServiceTest {
     @Test
     void testGetTags() {
         TagDto[] response = {new TagDto(1L, "Tag1")};
-        when(restTemplate.getForEntity(eq("/projects/1/tags"), eq(TagDto[].class)))
+        when(restTemplate.getForEntity("/projects/1/tags", TagDto[].class))
                 .thenReturn(ResponseEntity.ok(response));
 
         List<TagDto> result = tagApiService.getTags(1L);
 
         assertEquals(1, result.size());
         verify(restTemplate).getForEntity("/projects/1/tags", TagDto[].class);
+    }
+
+    @Test
+    void testGetTags_NullBody() {
+        when(restTemplate.getForEntity(anyString(), eq(TagDto[].class)))
+                .thenReturn(ResponseEntity.ok(null));
+
+        List<TagDto> result = tagApiService.getTags(1L);
+
+        assertTrue(result.isEmpty());
     }
 }

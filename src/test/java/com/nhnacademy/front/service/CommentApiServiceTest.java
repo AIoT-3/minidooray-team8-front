@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,7 +37,7 @@ class CommentApiServiceTest {
     void testCreateComment() {
         CommentCreateRequest request = new CommentCreateRequest("Content");
         CommentDto response = new CommentDto(1L, "user1", "Content", LocalDateTime.now());
-        when(restTemplate.postForEntity(eq("/projects/1/tasks/2/comments"), eq(request), eq(CommentDto.class)))
+        when(restTemplate.postForEntity("/projects/1/tasks/2/comments", request, CommentDto.class))
                 .thenReturn(ResponseEntity.ok(response));
 
         CommentDto result = commentApiService.createComment(1L, 2L, request);
@@ -66,5 +68,26 @@ class CommentApiServiceTest {
     void testDeleteComment() {
         commentApiService.deleteComment(1L, 2L, 3L);
         verify(restTemplate).delete("/projects/1/tasks/2/comments/3");
+    }
+
+    @Test
+    void testGetComments() {
+        CommentDto[] response = {new CommentDto(3L, "user1", "C", LocalDateTime.now())};
+        when(restTemplate.getForEntity("/projects/1/tasks/2/comments", CommentDto[].class))
+                .thenReturn(ResponseEntity.ok(response));
+
+        List<CommentDto> result = commentApiService.getComments(1L, 2L);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testGetComments_NullBody() {
+        when(restTemplate.getForEntity(anyString(), eq(CommentDto[].class)))
+                .thenReturn(ResponseEntity.ok(null));
+
+        List<CommentDto> result = commentApiService.getComments(1L, 2L);
+
+        assertTrue(result.isEmpty());
     }
 }

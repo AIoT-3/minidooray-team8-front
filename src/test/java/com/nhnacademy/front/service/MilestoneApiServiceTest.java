@@ -17,8 +17,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,7 +70,7 @@ class MilestoneApiServiceTest {
     @Test
     void testGetMilestone() {
         MilestoneDetailDto response = new MilestoneDetailDto(1L, "M1", LocalDate.now(), LocalDate.now().plusDays(1), List.of());
-        when(restTemplate.getForEntity(eq("/projects/1/milestones/2"), eq(MilestoneDetailDto.class)))
+        when(restTemplate.getForEntity("/projects/1/milestones/2", MilestoneDetailDto.class))
                 .thenReturn(ResponseEntity.ok(response));
 
         MilestoneDetailDto result = milestoneApiService.getMilestone(1L, 2L);
@@ -89,5 +89,15 @@ class MilestoneApiServiceTest {
 
         assertEquals(1, result.size());
         verify(restTemplate).getForEntity("/projects/1/milestones", MilestoneDto[].class);
+    }
+
+    @Test
+    void testGetMilestones_NullBody() {
+        when(restTemplate.getForEntity(anyString(), eq(MilestoneDto[].class)))
+                .thenReturn(ResponseEntity.ok(null));
+
+        List<MilestoneDto> result = milestoneApiService.getMilestones(1L);
+
+        assertTrue(result.isEmpty());
     }
 }
